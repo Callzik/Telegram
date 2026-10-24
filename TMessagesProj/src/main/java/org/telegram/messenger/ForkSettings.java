@@ -16,6 +16,7 @@ public final class ForkSettings {
     public static boolean ghostNoTyping;
     public static boolean ghostOffline;
     public static boolean saveDeleted;
+    public static boolean saveEdits;
 
     // what to hide in the interface
     public static boolean hideStories;
@@ -42,6 +43,7 @@ public final class ForkSettings {
         ghostNoTyping = p.getBoolean("ghostNoTyping", true);
         ghostOffline = p.getBoolean("ghostOffline", true);
         saveDeleted = p.getBoolean("saveDeleted", true);
+        saveEdits = p.getBoolean("saveEdits", true);
         hideStories = p.getBoolean("hideStories", true);
         hidePremiumSettings = p.getBoolean("hidePremiumSettings", true);
         hideHelpSettings = p.getBoolean("hideHelpSettings", false);
@@ -56,6 +58,7 @@ public final class ForkSettings {
             .putBoolean("ghostNoTyping", ghostNoTyping)
             .putBoolean("ghostOffline", ghostOffline)
             .putBoolean("saveDeleted", saveDeleted)
+            .putBoolean("saveEdits", saveEdits)
             .putBoolean("hideStories", hideStories)
             .putBoolean("hidePremiumSettings", hidePremiumSettings)
             .putBoolean("hideHelpSettings", hideHelpSettings)
@@ -66,6 +69,11 @@ public final class ForkSettings {
     public static boolean isSaveDeleted() {
         load();
         return saveDeleted;
+    }
+
+    public static boolean isSaveEdits() {
+        load();
+        return saveEdits;
     }
 
     public static boolean hideStories() {

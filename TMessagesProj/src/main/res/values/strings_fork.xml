@@ -10,7 +10,7 @@
     <string name="ForkGhostInfo">Others won\'t see that you read their messages, are typing or are online. Sending a message still marks the chat as read on the server.</string>
     <string name="ForkMessagesHeader">Messages</string>
     <string name="ForkSaveDeleted">Keep deleted messages</string>
-    <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Only messages already loaded on this device can be kept.</string>
+    <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Earlier versions of edited messages are available in the message menu. Only messages already loaded on this device are kept.</string>
     <string name="ForkDeletedMark">deleted</string>
     <string name="ForkHideHeader">Hide in interface</string>
     <string name="ForkHideStories">Stories</string>
@@ -18,4 +18,7 @@
     <string name="ForkHideHelp">Help section in settings</string>
     <string name="ForkHideShare">Share button next to posts</string>
     <string name="ForkHideInfo">Showing stories again takes effect after restarting the app.</string>
+    <string name="ForkSaveEdits">Keep edit history</string>
+    <string name="ForkEditHistory">Edit history</string>
+    <string name="ForkEditCurrent">Current version</string>
 </resources>

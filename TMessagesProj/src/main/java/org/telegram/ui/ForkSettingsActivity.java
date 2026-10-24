@@ -19,6 +19,7 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int GHOST_NO_TYPING = 3;
     private static final int GHOST_OFFLINE = 4;
     private static final int SAVE_DELETED = 5;
+    private static final int SAVE_EDITS = 6;
     private static final int HIDE_STORIES = 10;
     private static final int HIDE_PREMIUM = 11;
     private static final int HIDE_HELP = 12;
@@ -48,6 +49,7 @@ public class ForkSettingsActivity extends UniversalFragment {
 
         items.add(UItem.asHeader(getString(R.string.ForkMessagesHeader)));
         items.add(UItem.asCheck(SAVE_DELETED, getString(R.string.ForkSaveDeleted)).setChecked(ForkSettings.saveDeleted));
+        items.add(UItem.asCheck(SAVE_EDITS, getString(R.string.ForkSaveEdits)).setChecked(ForkSettings.saveEdits));
         items.add(UItem.asShadow(getString(R.string.ForkSaveDeletedInfo)));
 
         items.add(UItem.asHeader(getString(R.string.ForkHideHeader)));
@@ -66,6 +68,7 @@ public class ForkSettingsActivity extends UniversalFragment {
             case GHOST_NO_TYPING: ForkSettings.ghostNoTyping = !ForkSettings.ghostNoTyping; break;
             case GHOST_OFFLINE: ForkSettings.ghostOffline = !ForkSettings.ghostOffline; break;
             case SAVE_DELETED: ForkSettings.saveDeleted = !ForkSettings.saveDeleted; break;
+            case SAVE_EDITS: ForkSettings.saveEdits = !ForkSettings.saveEdits; break;
             case HIDE_STORIES: ForkSettings.hideStories = !ForkSettings.hideStories; break;
             case HIDE_PREMIUM: ForkSettings.hidePremiumSettings = !ForkSettings.hidePremiumSettings; break;
             case HIDE_HELP: ForkSettings.hideHelpSettings = !ForkSettings.hideHelpSettings; break;
