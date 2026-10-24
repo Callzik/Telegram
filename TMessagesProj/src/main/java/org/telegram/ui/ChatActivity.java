@@ -152,6 +152,8 @@ import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ChatThemeController;
 import org.telegram.utils.code.highlight.CodeHighlighting;
 import org.telegram.messenger.ContactsController;
+import org.telegram.messenger.DeletedMessagesStore;
+import org.telegram.messenger.EditHistoryStore;
 import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.DocumentObject;
 import org.telegram.messenger.DownloadController;
@@ -1238,6 +1240,7 @@ public class ChatActivity extends BaseFragment implements
     public final static int OPTION_VIEW_REPLIES_OR_THREAD = 27;
     public final static int OPTION_STATISTICS = 28;
     public final static int OPTION_TRANSLATE = 29;
+    public final static int OPTION_FORK_EDIT_HISTORY = 200;
     public final static int OPTION_TRANSCRIBE = 30;
     public final static int OPTION_HIDE_SPONSORED_MESSAGE = 31;
     public final static int OPTION_VIEW_IN_TOPIC = 32;
@@ -2972,6 +2975,7 @@ public class ChatActivity extends BaseFragment implements
             .add(NotificationCenter.didLoadSendAsPeers)
             .add(NotificationCenter.closeChatActivity)
             .add(NotificationCenter.messagesDeleted)
+            .add(NotificationCenter.forkMessagesMarkedDeleted)
             .add(NotificationCenter.historyCleared)
             .add(NotificationCenter.messageReceivedByServer)
             .add(NotificationCenter.messageReceivedByAck)
@@ -22378,6 +22382,26 @@ public class ChatActivity extends BaseFragment implements
             if (updated && chatAdapter != null) {
                 chatAdapter.notifyDataSetChanged(false);
             }
+        } else if (id == NotificationCenter.forkMessagesMarkedDeleted) {
+            if (chatListView != null) {
+                ArrayList<MessageObject> changed = new ArrayList<>();
+                for (int a = 0, count = chatListView.getChildCount(); a < count; a++) {
+                    View child = chatListView.getChildAt(a);
+                    if (child instanceof ChatMessageCell) {
+                        MessageObject messageObject = ((ChatMessageCell) child).getMessageObject();
+                        if (messageObject != null && DeletedMessagesStore.getInstance(currentAccount).isDeleted(messageObject)) {
+                            messageObject.forceUpdate = true;
+                            changed.add(messageObject);
+                        }
+                    }
+                }
+                if (!changed.isEmpty()) {
+                    updateVisibleRows();
+                    for (int a = 0; a < changed.size(); a++) {
+                        changed.get(a).forceUpdate = false;
+                    }
+                }
+            }
         } else if (id == NotificationCenter.messagesDeleted) {
             boolean scheduled = (Boolean) args[2];
             if (scheduled != (chatMode == MODE_SCHEDULED)) {
@@ -33419,12 +33443,37 @@ public class ChatActivity extends BaseFragment implements
         MediaController.saveFile(path, getParentActivity(), messageObject.isVideo() ? 1 : 0, null, null);
     }
 
+    private void showForkEditHistory(MessageObject messageObject) {
+        ArrayList<EditHistoryStore.Version> versions = EditHistoryStore.getInstance(currentAccount).getVersions(messageObject.getDialogId(), messageObject.getId());
+        SpannableStringBuilder text = new SpannableStringBuilder();
+        for (int a = 0; a < versions.size(); a++) {
+            EditHistoryStore.Version version = versions.get(a);
+            int start = text.length();
+            text.append(LocaleController.formatDateChat(version.date)).append(", ").append(LocaleController.getInstance().getFormatterDay().format((long) version.date * 1000));
+            text.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start, text.length(), 0);
+            text.append("\n").append(version.text).append("\n\n");
+        }
+        int start = text.length();
+        text.append(LocaleController.getString(R.string.ForkEditCurrent));
+        text.setSpan(new android.text.style.StyleSpan(android.graphics.Typeface.BOLD), start, text.length(), 0);
+        text.append("\n").append(messageObject.messageOwner.message == null ? "" : messageObject.messageOwner.message);
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), themeDelegate);
+        builder.setTitle(LocaleController.getString(R.string.ForkEditHistory));
+        builder.setMessage(text);
+        builder.setPositiveButton(LocaleController.getString(R.string.OK), null);
+        showDialog(builder.create());
+    }
+
     private void processSelectedOption(int option) {
         if (selectedObject == null || getParentActivity() == null) {
             return;
         }
         boolean preserveDim = false;
         switch (option) {
+            case OPTION_FORK_EDIT_HISTORY: {
+                showForkEditHistory(selectedObject);
+                break;
+            }
             case OPTION_RETRY: {
                 final MessageObject object = selectedObject;
                 final MessageObject.GroupedMessages group = selectedObjectGroup;
@@ -46025,6 +46074,11 @@ public class ChatActivity extends BaseFragment implements
                     options.add(OPTION_TRANSLATE);
                     icons.add(R.drawable.msg_translate);
                 }
+                if (selectedObject != null && selectedObject.messageOwner != null && EditHistoryStore.getInstance(currentAccount).hasVersions(selectedObject.getDialogId(), selectedObject.getId())) {
+                    items.add(LocaleController.getString(R.string.ForkEditHistory));
+                    options.add(OPTION_FORK_EDIT_HISTORY);
+                    icons.add(R.drawable.msg_edit);
+                }
                 if (message.canEditMessage(currentChat) && message.type != MessageObject.TYPE_POLL || chatMode == MODE_WELCOME_MESSAGES) {
                     items.add(LocaleController.getString(R.string.Edit));
                     options.add(OPTION_EDIT);
@@ -46371,6 +46425,11 @@ public class ChatActivity extends BaseFragment implements
                     items.add(LocaleController.getString(R.string.TranslateMessage));
                     options.add(OPTION_TRANSLATE);
                     icons.add(R.drawable.msg_translate);
+                }
+                if (selectedObject != null && selectedObject.messageOwner != null && EditHistoryStore.getInstance(currentAccount).hasVersions(selectedObject.getDialogId(), selectedObject.getId())) {
+                    items.add(LocaleController.getString(R.string.ForkEditHistory));
+                    options.add(OPTION_FORK_EDIT_HISTORY);
+                    icons.add(R.drawable.msg_edit);
                 }
                 if (allowEdit || chatMode == MODE_WELCOME_MESSAGES) {
                     items.add(LocaleController.getString(R.string.Edit));

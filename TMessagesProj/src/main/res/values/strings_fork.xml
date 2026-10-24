@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ForkSettings">Fork settings</string>
+    <string name="ForkSettingsInfo">Ghost mode, deleted messages, interface</string>
+    <string name="ForkGhostHeader">Ghost mode</string>
+    <string name="ForkGhostMode">Ghost mode</string>
+    <string name="ForkGhostNoRead">Don\'t send read receipts</string>
+    <string name="ForkGhostNoTyping">Don\'t send typing status</string>
+    <string name="ForkGhostOffline">Always appear offline</string>
+    <string name="ForkGhostInfo">Others won\'t see that you read their messages, are typing or are online. Sending a message still marks the chat as read on the server.</string>
+    <string name="ForkMessagesHeader">Messages</string>
+    <string name="ForkSaveDeleted">Keep deleted messages</string>
+    <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Earlier versions of edited messages are available in the message menu. Only messages already loaded on this device are kept.</string>
+    <string name="ForkDeletedMark">deleted</string>
+    <string name="ForkHideHeader">Hide in interface</string>
+    <string name="ForkHideStories">Stories</string>
+    <string name="ForkHidePremium">Premium, Stars, Business and gifts in settings</string>
+    <string name="ForkHideHelp">Help section in settings</string>
+    <string name="ForkHideShare">Share button next to posts</string>
+    <string name="ForkHideInfo">Showing stories again takes effect after restarting the app.</string>
+    <string name="ForkSaveEdits">Keep edit history</string>
+    <string name="ForkEditHistory">Edit history</string>
+    <string name="ForkEditCurrent">Current version</string>
+    <string name="ForkPremiumHeader">Local Premium</string>
+    <string name="ForkLocalPremium">Unlock client-side Premium features</string>
+    <string name="ForkLocalPremiumInfo">Up to 4 accounts and Premium app icons. Limits checked by Telegram servers (folders, pinned chats, upload size, speed) can\'t be changed by the app.</string>
+    <string name="ForkAppearanceHeader">Appearance</string>
+    <string name="ForkAmoled">Pure black dark theme (AMOLED)</string>
+    <string name="ForkSystemFont">System font</string>
+    <string name="ForkAppearanceInfo">The system font applies after restarting the app. Font size, bubble corners, chat list layout and custom themes are in Settings → Chat settings.</string>
+</resources>

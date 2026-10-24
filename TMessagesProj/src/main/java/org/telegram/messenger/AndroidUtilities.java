@@ -2394,7 +2394,15 @@ public class AndroidUtilities {
             if (!typefaceCache.containsKey(assetPath)) {
                 try {
                     Typeface t;
-                    if (Build.VERSION.SDK_INT >= 26) {
+                    if (ForkSettings.systemFont() && assetPath.startsWith("fonts/r") && !assetPath.contains("mono")) {
+                        final boolean bold = assetPath.contains("medium") || assetPath.contains("bold");
+                        final boolean italic = assetPath.contains("italic");
+                        if (Build.VERSION.SDK_INT >= 28) {
+                            t = Typeface.create(Typeface.DEFAULT, assetPath.contains("rextrabold") ? 800 : bold ? 500 : 400, italic);
+                        } else {
+                            t = Typeface.create(bold ? "sans-serif-medium" : "sans-serif", italic ? Typeface.ITALIC : Typeface.NORMAL);
+                        }
+                    } else if (Build.VERSION.SDK_INT >= 26) {
                         Typeface.Builder builder = new Typeface.Builder(ApplicationLoader.applicationContext.getAssets(), assetPath);
                         if (assetPath.contains("rextrabold")) {
                             builder.setWeight(800);

@@ -7854,6 +7854,24 @@ public class MessagesStorage extends BaseController {
         return ref.get();
     }
 
+    // Fork: remember the text of messages right before their edited version is saved
+    public void saveEditHistory(long dialogId, ArrayList<MessageObject> edited) {
+        storageQueue.postRunnable(() -> {
+            EditHistoryStore store = EditHistoryStore.getInstance(currentAccount);
+            for (int a = 0; a < edited.size(); a++) {
+                TLRPC.Message newMessage = edited.get(a).messageOwner;
+                if (newMessage == null) {
+                    continue;
+                }
+                TLRPC.Message old = getMessageInternal(dialogId, newMessage.id);
+                if (old == null || TextUtils.equals(old.message, newMessage.message)) {
+                    continue;
+                }
+                store.addVersion(dialogId, old.id, old.edit_date != 0 ? old.edit_date : old.date, old.message);
+            }
+        });
+    }
+
     private TLRPC.Message getMessageInternal(long dialogId, long msgId) {
         SQLiteCursor cursor = null;
         TLRPC.Message result = null;

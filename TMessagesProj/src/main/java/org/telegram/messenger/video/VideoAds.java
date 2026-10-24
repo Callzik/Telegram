@@ -36,6 +36,7 @@ import org.aspectj.lang.annotation.AdviceName;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.ForkConfig;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LocaleController;
@@ -194,6 +195,7 @@ public static VideoAds make(
     private boolean loading, loaded;
     private void load() {
         if (loading || loaded) return;
+        if (ForkConfig.DISABLE_ADS) return;
 
         if (UserConfig.getInstance(currentAccount).isPremium() && MessagesController.getInstance(currentAccount).isSponsoredDisabled()) {
             return;
