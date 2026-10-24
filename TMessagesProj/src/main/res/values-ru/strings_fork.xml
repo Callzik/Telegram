@@ -21,4 +21,11 @@
     <string name="ForkSaveEdits">Сохранять историю правок</string>
     <string name="ForkEditHistory">История правок</string>
     <string name="ForkEditCurrent">Текущая версия</string>
+    <string name="ForkPremiumHeader">Локальный Premium</string>
+    <string name="ForkLocalPremium">Включить клиентские функции Premium</string>
+    <string name="ForkLocalPremiumInfo">До 4 аккаунтов и иконки приложения из Premium. Лимиты, которые проверяют серверы Telegram (папки, закреплённые чаты, размер и скорость загрузки), приложение изменить не может.</string>
+    <string name="ForkAppearanceHeader">Оформление</string>
+    <string name="ForkAmoled">Чисто чёрная тёмная тема (AMOLED)</string>
+    <string name="ForkSystemFont">Системный шрифт</string>
+    <string name="ForkAppearanceInfo">Системный шрифт применится после перезапуска. Размер шрифта, скругление сообщений, вид списка чатов и свои темы находятся в «Настройки → Оформление».</string>
 </resources>

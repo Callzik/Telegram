@@ -6,6 +6,7 @@ import android.view.View;
 
 import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.R;
+import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.UItem;
 import org.telegram.ui.Components.UniversalAdapter;
 import org.telegram.ui.Components.UniversalFragment;
@@ -20,6 +21,9 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int GHOST_OFFLINE = 4;
     private static final int SAVE_DELETED = 5;
     private static final int SAVE_EDITS = 6;
+    private static final int LOCAL_PREMIUM = 8;
+    private static final int AMOLED = 20;
+    private static final int SYSTEM_FONT = 21;
     private static final int HIDE_STORIES = 10;
     private static final int HIDE_PREMIUM = 11;
     private static final int HIDE_HELP = 12;
@@ -52,6 +56,15 @@ public class ForkSettingsActivity extends UniversalFragment {
         items.add(UItem.asCheck(SAVE_EDITS, getString(R.string.ForkSaveEdits)).setChecked(ForkSettings.saveEdits));
         items.add(UItem.asShadow(getString(R.string.ForkSaveDeletedInfo)));
 
+        items.add(UItem.asHeader(getString(R.string.ForkPremiumHeader)));
+        items.add(UItem.asCheck(LOCAL_PREMIUM, getString(R.string.ForkLocalPremium)).setChecked(ForkSettings.localPremium));
+        items.add(UItem.asShadow(getString(R.string.ForkLocalPremiumInfo)));
+
+        items.add(UItem.asHeader(getString(R.string.ForkAppearanceHeader)));
+        items.add(UItem.asCheck(AMOLED, getString(R.string.ForkAmoled)).setChecked(ForkSettings.amoledDark));
+        items.add(UItem.asCheck(SYSTEM_FONT, getString(R.string.ForkSystemFont)).setChecked(ForkSettings.systemFont));
+        items.add(UItem.asShadow(getString(R.string.ForkAppearanceInfo)));
+
         items.add(UItem.asHeader(getString(R.string.ForkHideHeader)));
         items.add(UItem.asCheck(HIDE_STORIES, getString(R.string.ForkHideStories)).setChecked(ForkSettings.hideStories));
         items.add(UItem.asCheck(HIDE_PREMIUM, getString(R.string.ForkHidePremium)).setChecked(ForkSettings.hidePremiumSettings));
@@ -69,6 +82,13 @@ public class ForkSettingsActivity extends UniversalFragment {
             case GHOST_OFFLINE: ForkSettings.ghostOffline = !ForkSettings.ghostOffline; break;
             case SAVE_DELETED: ForkSettings.saveDeleted = !ForkSettings.saveDeleted; break;
             case SAVE_EDITS: ForkSettings.saveEdits = !ForkSettings.saveEdits; break;
+            case LOCAL_PREMIUM: ForkSettings.localPremium = !ForkSettings.localPremium; break;
+            case AMOLED:
+                ForkSettings.amoledDark = !ForkSettings.amoledDark;
+                ForkSettings.save();
+                Theme.refreshThemeColors();
+                break;
+            case SYSTEM_FONT: ForkSettings.systemFont = !ForkSettings.systemFont; break;
             case HIDE_STORIES: ForkSettings.hideStories = !ForkSettings.hideStories; break;
             case HIDE_PREMIUM: ForkSettings.hidePremiumSettings = !ForkSettings.hidePremiumSettings; break;
             case HIDE_HELP: ForkSettings.hideHelpSettings = !ForkSettings.hideHelpSettings; break;

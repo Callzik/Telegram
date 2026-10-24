@@ -82,6 +82,7 @@ import org.telegram.messenger.Bitmaps;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
+import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.ImageLocation;
 import org.telegram.messenger.LiteMode;
 import org.telegram.messenger.MediaController;
@@ -6081,6 +6082,16 @@ public class Theme {
         }
         applyCalculatedTableColors(currentColorsNoAccent, currentColors, currentTheme.isDark());
         applyCalculatedArticleCodeColors(currentColorsNoAccent, currentColors, currentTheme.isDark());
+        if (ForkSettings.amoledDark() && currentTheme.isDark()) {
+            final int[] keys = {
+                key_windowBackgroundWhite, key_windowBackgroundGray, key_actionBarDefault,
+                key_actionBarDefaultSubmenuBackground, key_chats_menuBackground, key_chat_messagePanelBackground,
+                key_dialogBackground, key_chat_wallpaper, key_chat_emojiPanelBackground
+            };
+            for (int key : keys) {
+                currentColors.put(key, 0xFF000000);
+            }
+        }
         if (!messages) {
             boolean async = !(LaunchActivity.getLastFragment() instanceof ChatActivity);
             reloadWallpaper(async);

@@ -21,4 +21,11 @@
     <string name="ForkSaveEdits">Keep edit history</string>
     <string name="ForkEditHistory">Edit history</string>
     <string name="ForkEditCurrent">Current version</string>
+    <string name="ForkPremiumHeader">Local Premium</string>
+    <string name="ForkLocalPremium">Unlock client-side Premium features</string>
+    <string name="ForkLocalPremiumInfo">Up to 4 accounts and Premium app icons. Limits checked by Telegram servers (folders, pinned chats, upload size, speed) can\'t be changed by the app.</string>
+    <string name="ForkAppearanceHeader">Appearance</string>
+    <string name="ForkAmoled">Pure black dark theme (AMOLED)</string>
+    <string name="ForkSystemFont">System font</string>
+    <string name="ForkAppearanceInfo">The system font applies after restarting the app. Font size, bubble corners, chat list layout and custom themes are in Settings → Chat settings.</string>
 </resources>

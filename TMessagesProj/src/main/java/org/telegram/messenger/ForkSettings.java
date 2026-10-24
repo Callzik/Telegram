@@ -17,6 +17,9 @@ public final class ForkSettings {
     public static boolean ghostOffline;
     public static boolean saveDeleted;
     public static boolean saveEdits;
+    public static boolean localPremium;
+    public static boolean amoledDark;
+    public static boolean systemFont;
 
     // what to hide in the interface
     public static boolean hideStories;
@@ -44,6 +47,9 @@ public final class ForkSettings {
         ghostOffline = p.getBoolean("ghostOffline", true);
         saveDeleted = p.getBoolean("saveDeleted", true);
         saveEdits = p.getBoolean("saveEdits", true);
+        localPremium = p.getBoolean("localPremium", true);
+        amoledDark = p.getBoolean("amoledDark", false);
+        systemFont = p.getBoolean("systemFont", false);
         hideStories = p.getBoolean("hideStories", true);
         hidePremiumSettings = p.getBoolean("hidePremiumSettings", true);
         hideHelpSettings = p.getBoolean("hideHelpSettings", false);
@@ -59,6 +65,9 @@ public final class ForkSettings {
             .putBoolean("ghostOffline", ghostOffline)
             .putBoolean("saveDeleted", saveDeleted)
             .putBoolean("saveEdits", saveEdits)
+            .putBoolean("localPremium", localPremium)
+            .putBoolean("amoledDark", amoledDark)
+            .putBoolean("systemFont", systemFont)
             .putBoolean("hideStories", hideStories)
             .putBoolean("hidePremiumSettings", hidePremiumSettings)
             .putBoolean("hideHelpSettings", hideHelpSettings)
@@ -74,6 +83,22 @@ public final class ForkSettings {
     public static boolean isSaveEdits() {
         load();
         return saveEdits;
+    }
+
+    // client-side only: 4 accounts instead of 3 and premium app icons
+    public static boolean localPremium() {
+        load();
+        return localPremium;
+    }
+
+    public static boolean amoledDark() {
+        load();
+        return amoledDark;
+    }
+
+    public static boolean systemFont() {
+        load();
+        return systemFont;
     }
 
     public static boolean hideStories() {
