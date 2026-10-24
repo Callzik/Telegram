@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ForkSettings">Fork settings</string>
+    <string name="ForkSettingsInfo">Ghost mode, deleted messages, interface</string>
+    <string name="ForkGhostHeader">Ghost mode</string>
+    <string name="ForkGhostMode">Ghost mode</string>
+    <string name="ForkGhostNoRead">Don\'t send read receipts</string>
+    <string name="ForkGhostNoTyping">Don\'t send typing status</string>
+    <string name="ForkGhostOffline">Always appear offline</string>
+    <string name="ForkGhostInfo">Others won\'t see that you read their messages, are typing or are online. Sending a message still marks the chat as read on the server.</string>
+    <string name="ForkMessagesHeader">Messages</string>
+    <string name="ForkSaveDeleted">Keep deleted messages</string>
+    <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Only messages already loaded on this device can be kept.</string>
+    <string name="ForkDeletedMark">deleted</string>
+    <string name="ForkHideHeader">Hide in interface</string>
+    <string name="ForkHideStories">Stories</string>
+    <string name="ForkHidePremium">Premium, Stars, Business and gifts in settings</string>
+    <string name="ForkHideHelp">Help section in settings</string>
+    <string name="ForkHideShare">Share button next to posts</string>
+    <string name="ForkHideInfo">Showing stories again takes effect after restarting the app.</string>
+</resources>

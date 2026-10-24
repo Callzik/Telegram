@@ -18,6 +18,7 @@ import org.telegram.SQLite.SQLitePreparedStatement;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.DialogObject;
@@ -186,6 +187,9 @@ public class StoriesController {
     }
 
     public void loadAllStories() {
+        if (ForkSettings.hideStories()) {
+            return;
+        }
         if (!firstLoad) {
             loadStories();
             loadStoriesRead();
@@ -247,6 +251,9 @@ public class StoriesController {
     }
 
     public boolean hasStories(long dialogId) {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         if (dialogId == 0) {
             return false;
         }
@@ -280,10 +287,16 @@ public class StoriesController {
     }
 
     public boolean hasStories() {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         return (dialogListStories != null && dialogListStories.size() > 0) || hasSelfStories();
     }
 
     public void loadStories() {
+        if (ForkSettings.hideStories()) {
+            return;
+        }
         if (firstLoad) {
             loadingFromDatabase = true;
             storiesStorage.getAllStories(allStories -> {
@@ -305,6 +318,9 @@ public class StoriesController {
     }
 
     public void loadHiddenStories() {
+        if (ForkSettings.hideStories()) {
+            return;
+        }
         if (hasMoreHidden) {
             loadFromServer(true);
         }
@@ -373,6 +389,9 @@ public class StoriesController {
     }
 
     private void loadFromServer(boolean hidden) {
+        if (ForkSettings.hideStories()) {
+            return;
+        }
         if ((hidden && loadingFromServerHidden) || (!hidden && loadingFromServer) || loadingFromDatabase) {
             return;
         }
@@ -1069,6 +1088,9 @@ public class StoriesController {
     }
 
     public boolean hasSelfStories() {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         long clientUserId = UserConfig.getInstance(currentAccount).clientUserId;
         TL_stories.PeerStories storyItem = allStoriesMap.get(clientUserId);
         if (storyItem != null && !storyItem.stories.isEmpty()) {
@@ -1335,6 +1357,9 @@ public class StoriesController {
     }
 
     public boolean hasUnreadStories(long dialogId) {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         TL_stories.PeerStories userStories = allStoriesMap.get(dialogId);
         if (userStories == null) {
             userStories = getStoriesFromFullPeer(dialogId);
@@ -1361,6 +1386,9 @@ public class StoriesController {
     }
 
     public int hasUnreadStoriesLive(long dialogId) {
+        if (ForkSettings.hideStories()) {
+            return 0;
+        }
         TL_stories.PeerStories userStories = allStoriesMap.get(dialogId);
         if (userStories == null) {
             userStories = getStoriesFromFullPeer(dialogId);
@@ -1387,6 +1415,9 @@ public class StoriesController {
     }
 
     public boolean hasLiveStory(long dialogId) {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         TL_stories.PeerStories userStories = allStoriesMap.get(dialogId);
         if (userStories == null) {
             userStories = getStoriesFromFullPeer(dialogId);
@@ -1552,6 +1583,9 @@ public class StoriesController {
     }
 
     public void loadNextStories(boolean hidden) {
+        if (ForkSettings.hideStories()) {
+            return;
+        }
         if (hidden ? hasMoreHidden : hasMore) {
             loadFromServer(hidden);
         }
@@ -1747,6 +1781,9 @@ public class StoriesController {
     }
 
     public boolean hasHiddenStories() {
+        if (ForkSettings.hideStories()) {
+            return false;
+        }
         return !hiddenListStories.isEmpty();
     }
 

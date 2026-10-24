@@ -152,6 +152,7 @@ import org.telegram.messenger.ChatObject;
 import org.telegram.messenger.ChatThemeController;
 import org.telegram.utils.code.highlight.CodeHighlighting;
 import org.telegram.messenger.ContactsController;
+import org.telegram.messenger.DeletedMessagesStore;
 import org.telegram.messenger.DialogObject;
 import org.telegram.messenger.DocumentObject;
 import org.telegram.messenger.DownloadController;
@@ -2972,6 +2973,7 @@ public class ChatActivity extends BaseFragment implements
             .add(NotificationCenter.didLoadSendAsPeers)
             .add(NotificationCenter.closeChatActivity)
             .add(NotificationCenter.messagesDeleted)
+            .add(NotificationCenter.forkMessagesMarkedDeleted)
             .add(NotificationCenter.historyCleared)
             .add(NotificationCenter.messageReceivedByServer)
             .add(NotificationCenter.messageReceivedByAck)
@@ -22377,6 +22379,26 @@ public class ChatActivity extends BaseFragment implements
             removeUnreadPlane(true);
             if (updated && chatAdapter != null) {
                 chatAdapter.notifyDataSetChanged(false);
+            }
+        } else if (id == NotificationCenter.forkMessagesMarkedDeleted) {
+            if (chatListView != null) {
+                ArrayList<MessageObject> changed = new ArrayList<>();
+                for (int a = 0, count = chatListView.getChildCount(); a < count; a++) {
+                    View child = chatListView.getChildAt(a);
+                    if (child instanceof ChatMessageCell) {
+                        MessageObject messageObject = ((ChatMessageCell) child).getMessageObject();
+                        if (messageObject != null && DeletedMessagesStore.getInstance(currentAccount).isDeleted(messageObject)) {
+                            messageObject.forceUpdate = true;
+                            changed.add(messageObject);
+                        }
+                    }
+                }
+                if (!changed.isEmpty()) {
+                    updateVisibleRows();
+                    for (int a = 0; a < changed.size(); a++) {
+                        changed.get(a).forceUpdate = false;
+                    }
+                }
             }
         } else if (id == NotificationCenter.messagesDeleted) {
             boolean scheduled = (Boolean) args[2];

@@ -36,6 +36,7 @@ public class NotificationCenter {
     private static int totalEvents = 1;
 
     public static final int didReceiveNewMessages = totalEvents++;
+    public static final int forkMessagesMarkedDeleted = totalEvents++;
     public static final int updateInterfaces = totalEvents++;
     public static final int dialogsNeedReload = totalEvents++;
     public static final int closeChats = totalEvents++;
