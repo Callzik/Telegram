@@ -3200,7 +3200,10 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                         } else if (error.text.startsWith("FLOOD_WAIT")) {
                             needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("FloodWait", R.string.FloodWait));
                         } else if (error.code != -1000) {
-                            AlertsCreator.processError(currentAccount, error, LoginActivity.this, req, phoneInputData.phoneNumber);
+                            // Fork: processError ignores 406 errors (e.g. SEND_CODE_UNAVAILABLE), show them instead of nothing
+                            if (AlertsCreator.processError(currentAccount, error, LoginActivity.this, req, phoneInputData.phoneNumber) == null) {
+                                needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginError, error.code + " " + error.text));
+                            }
                         } else {
                             FileLog.e("auth.sendCode canceled: " + error.text);
                         }
