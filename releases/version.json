@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 7,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b7-arm64.apk",
-  "changelog": "Добавление второго аккаунта: после подтверждения номера вход больше не замирает. Убран запрос разрешений на звонки при добавлении аккаунта. Если сервер не отвечает 20 секунд, появится окно с причиной."
+  "build": 8,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b8-arm64.apk",
+  "changelog": "Вход: если сервер отказывает в отправке кода, теперь показывается ошибка вместо тишины."
 }
