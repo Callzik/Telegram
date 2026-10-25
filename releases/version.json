@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 2,
+  "build": 3,
   "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-arm64.apk",
-  "changelog": "Автообновление с GitHub: приложение само проверяет новые сборки, кнопка «Проверить обновления» в настройках форка."
+  "changelog": "Плагины на Python в стиле exteraGram: Настройки → Плагины, установка из файла или из чата."
 }
