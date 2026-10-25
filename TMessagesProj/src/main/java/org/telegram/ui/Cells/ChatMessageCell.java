@@ -18393,6 +18393,20 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         allowAssistant = value;
     }
 
+    private static ColoredImageSpan forkDeletedSpan;
+
+    // trash icon for messages kept by the fork after deletion; the emoji placeholder keeps measureText close to the icon width
+    private static CharSequence forkDeletedIcon() {
+        if (forkDeletedSpan == null) {
+            forkDeletedSpan = new ColoredImageSpan(R.drawable.msg_delete);
+            forkDeletedSpan.setScale(0.55f, 0.55f);
+            forkDeletedSpan.translate(0, dp(-.33f));
+        }
+        SpannableString icon = new SpannableString("🗑 ");
+        icon.setSpan(forkDeletedSpan, 0, icon.length() - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return icon;
+    }
+
     private void measureTime(MessageObject messageObject) {
         CharSequence signString;
         MessageObject primaryMessageObject = getPrimaryMessageObject();
@@ -18491,7 +18505,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
         if (currentMessageObject.messageOwner.video_processing_pending) {
             timeString = formatString(R.string.ScheduledTimeApprox, timeString);
         }
-        if (DeletedMessagesStore.getInstance(currentAccount).isDeleted(messageObject)) {
+        final boolean forkDeleted = ForkSettings.markDeleted() && DeletedMessagesStore.getInstance(currentAccount).isDeleted(messageObject);
+        if (forkDeleted && !ForkSettings.markDeletedIcon()) {
             timeString = getString(R.string.ForkDeletedMark) + " " + timeString;
         }
         if (signString != null) {
@@ -18504,6 +18519,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             }
         } else {
             currentTimeString = timeString;
+        }
+        if (forkDeleted && ForkSettings.markDeletedIcon()) {
+            currentTimeString = TextUtils.concat(forkDeletedIcon(), currentTimeString);
         }
         if (currentMessageObject.isStakedDice()) {
             currentTimeString = TextUtils.concat("💎", StarsIntroActivity.formatTON(currentMessageObject.getStakedDiceAmount()), "  ", currentTimeString);

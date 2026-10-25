@@ -11561,6 +11561,8 @@
     <string name="ForkSaveDeleted">Keep deleted messages</string>
     <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Earlier versions of edited messages are available in the message menu. Only messages already loaded on this device are kept.</string>
     <string name="ForkDeletedMark">deleted</string>
+    <string name="ForkMarkDeleted">Mark deleted messages</string>
+    <string name="ForkMarkDeletedIcon">Icon instead of text</string>
     <string name="ForkHideHeader">Hide in interface</string>
     <string name="ForkHideStories">Stories</string>
     <string name="ForkHidePremium">Premium, Stars, Business and gifts in settings</string>

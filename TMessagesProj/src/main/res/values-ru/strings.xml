@@ -276,6 +276,8 @@
     <string name="ForkSaveDeleted">Сохранять удалённые сообщения</string>
     <string name="ForkSaveDeletedInfo">Сообщения, которые удалили другие, остаются на этом устройстве с пометкой «удалено». Прошлые версии изменённых сообщений доступны в меню сообщения. Сохраняется только то, что уже загружено на устройство.</string>
     <string name="ForkDeletedMark">удалено</string>
+    <string name="ForkMarkDeleted">Помечать удалённые сообщения</string>
+    <string name="ForkMarkDeletedIcon">Иконкой вместо текста</string>
     <string name="ForkHideHeader">Скрыть в интерфейсе</string>
     <string name="ForkHideStories">Истории</string>
     <string name="ForkHidePremium">Premium, Звёзды, Business и подарки в настройках</string>

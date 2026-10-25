@@ -17,6 +17,8 @@ public final class ForkSettings {
     public static boolean ghostOffline;
     public static boolean saveDeleted;
     public static boolean saveEdits;
+    public static boolean markDeleted;
+    public static boolean markDeletedIcon;
     public static boolean localPremium;
     public static boolean amoledDark;
     public static boolean systemFont;
@@ -47,6 +49,8 @@ public final class ForkSettings {
         ghostOffline = p.getBoolean("ghostOffline", true);
         saveDeleted = p.getBoolean("saveDeleted", true);
         saveEdits = p.getBoolean("saveEdits", true);
+        markDeleted = p.getBoolean("markDeleted", true);
+        markDeletedIcon = p.getBoolean("markDeletedIcon", true);
         localPremium = p.getBoolean("localPremium", true);
         amoledDark = p.getBoolean("amoledDark", false);
         systemFont = p.getBoolean("systemFont", false);
@@ -65,6 +69,8 @@ public final class ForkSettings {
             .putBoolean("ghostOffline", ghostOffline)
             .putBoolean("saveDeleted", saveDeleted)
             .putBoolean("saveEdits", saveEdits)
+            .putBoolean("markDeleted", markDeleted)
+            .putBoolean("markDeletedIcon", markDeletedIcon)
             .putBoolean("localPremium", localPremium)
             .putBoolean("amoledDark", amoledDark)
             .putBoolean("systemFont", systemFont)
@@ -78,6 +84,17 @@ public final class ForkSettings {
     public static boolean isSaveDeleted() {
         load();
         return saveDeleted;
+    }
+
+    public static boolean markDeleted() {
+        load();
+        return markDeleted;
+    }
+
+    // trash icon next to the time instead of the "deleted" word
+    public static boolean markDeletedIcon() {
+        load();
+        return markDeletedIcon;
     }
 
     public static boolean isSaveEdits() {
