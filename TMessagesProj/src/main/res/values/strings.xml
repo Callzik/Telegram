@@ -11567,6 +11567,9 @@
     <string name="ForkHideHelp">Help section in settings</string>
     <string name="ForkHideShare">Share button next to posts</string>
     <string name="ForkHideInfo">Showing stories again takes effect after restarting the app.</string>
+    <string name="ForkUpdatesHeader">Updates</string>
+    <string name="ForkCheckUpdates">Check for updates</string>
+    <string name="ForkUpdatesInfo">New MyTelegram builds are downloaded from the developer\'s GitHub. The app also checks for them automatically.</string>
     <string name="ForkSaveEdits">Keep edit history</string>
     <string name="ForkEditHistory">Edit history</string>
     <string name="ForkEditCurrent">Current version</string>
