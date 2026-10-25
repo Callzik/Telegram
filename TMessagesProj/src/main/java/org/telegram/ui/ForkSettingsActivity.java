@@ -24,6 +24,8 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int GHOST_OFFLINE = 4;
     private static final int SAVE_DELETED = 5;
     private static final int SAVE_EDITS = 6;
+    private static final int MARK_DELETED = 14;
+    private static final int MARK_DELETED_ICON = 15;
     private static final int LOCAL_PREMIUM = 8;
     private static final int AMOLED = 20;
     private static final int SYSTEM_FONT = 21;
@@ -57,6 +59,12 @@ public class ForkSettingsActivity extends UniversalFragment {
 
         items.add(UItem.asHeader(getString(R.string.ForkMessagesHeader)));
         items.add(UItem.asCheck(SAVE_DELETED, getString(R.string.ForkSaveDeleted)).setChecked(ForkSettings.saveDeleted));
+        if (ForkSettings.saveDeleted) {
+            items.add(UItem.asCheck(MARK_DELETED, getString(R.string.ForkMarkDeleted)).setChecked(ForkSettings.markDeleted));
+            if (ForkSettings.markDeleted) {
+                items.add(UItem.asCheck(MARK_DELETED_ICON, getString(R.string.ForkMarkDeletedIcon)).setChecked(ForkSettings.markDeletedIcon));
+            }
+        }
         items.add(UItem.asCheck(SAVE_EDITS, getString(R.string.ForkSaveEdits)).setChecked(ForkSettings.saveEdits));
         items.add(UItem.asShadow(getString(R.string.ForkSaveDeletedInfo)));
 
@@ -96,6 +104,8 @@ public class ForkSettingsActivity extends UniversalFragment {
             case GHOST_OFFLINE: ForkSettings.ghostOffline = !ForkSettings.ghostOffline; break;
             case SAVE_DELETED: ForkSettings.saveDeleted = !ForkSettings.saveDeleted; break;
             case SAVE_EDITS: ForkSettings.saveEdits = !ForkSettings.saveEdits; break;
+            case MARK_DELETED: ForkSettings.markDeleted = !ForkSettings.markDeleted; break;
+            case MARK_DELETED_ICON: ForkSettings.markDeletedIcon = !ForkSettings.markDeletedIcon; break;
             case LOCAL_PREMIUM: ForkSettings.localPremium = !ForkSettings.localPremium; break;
             case AMOLED:
                 ForkSettings.amoledDark = !ForkSettings.amoledDark;
