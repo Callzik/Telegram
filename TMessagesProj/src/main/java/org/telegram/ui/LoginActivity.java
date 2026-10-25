@@ -395,6 +395,18 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private boolean[] postedEditDoneCallback = new boolean[2];
 
     private boolean forceDisableSafetyNet;
+    private static final long SEND_CODE_TIMEOUT = 20_000;
+
+    private static String connectionStateName(int state) {
+        switch (state) {
+            case ConnectionsManager.ConnectionStateConnecting: return "connecting";
+            case ConnectionsManager.ConnectionStateWaitingForNetwork: return "waiting for network";
+            case ConnectionsManager.ConnectionStateConnected: return "connected";
+            case ConnectionsManager.ConnectionStateConnectingToProxy: return "connecting to proxy";
+            case ConnectionsManager.ConnectionStateUpdating: return "updating";
+            default: return String.valueOf(state);
+        }
+    }
 
     private static class ProgressView extends View {
 
@@ -963,6 +975,15 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
     @Override
     public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 6) {
+            // Fork: go on even if the request was interrupted (empty results), or the screen stays stuck
+            checkPermissions = false;
+            if (currentViewNum == VIEW_PHONE_INPUT) {
+                ((PhoneView)views[currentViewNum]).confirmedNumber = true;
+                views[currentViewNum].onNextPressed(null);
+            }
+            return;
+        }
         if (permissions.length == 0 || grantResults.length == 0) return;
 
         boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
@@ -2855,7 +2876,9 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                                 allowReadCallLog = true;
                                 allowReadPhoneNumbers = true;
                             }
-                            if (checkPermissions) {
+                            // Fork: don't ask for call/phone permissions when adding another account, the
+                            // permission round trip could leave the phone screen stuck
+                            if (checkPermissions && !newAccount) {
                                 permissionsItems.clear();
                                 if (!allowCall) {
                                     permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
@@ -2932,7 +2955,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     allowReadPhoneNumbers = getParentActivity().checkSelfPermission(Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED;
                 }
-                if (checkPermissions) {
+                if (checkPermissions && !newAccount) {
                     permissionsItems.clear();
                     if (!allowCall) {
                         permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
@@ -3178,7 +3201,11 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                             needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("FloodWait", R.string.FloodWait));
                         } else if (error.code != -1000) {
                             AlertsCreator.processError(currentAccount, error, LoginActivity.this, req, phoneInputData.phoneNumber);
+                        } else {
+                            FileLog.e("auth.sendCode canceled: " + error.text);
                         }
+                    } else {
+                        needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginError, String.valueOf(error.code)));
                     }
                 }
                 if (!isRequestingFirebaseSms) {
@@ -3186,7 +3213,21 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 }
             }), ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin | ConnectionsManager.RequestFlagTryDifferentDc | ConnectionsManager.RequestFlagEnableUnauthorized);
             needShowProgress(reqId);
+            // Fork: never leave the phone screen silently stuck if the server doesn't answer
+            final int attempt = ++sendCodeAttempt;
+            AndroidUtilities.runOnUIThread(() -> {
+                if (attempt != sendCodeAttempt || !nextPressed) {
+                    return;
+                }
+                FileLog.e("auth.sendCode got no response for account " + currentAccount);
+                ConnectionsManager.getInstance(currentAccount).cancelRequest(reqId, true);
+                nextPressed = false;
+                needHideProgress(false);
+                needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginNoResponse, connectionStateName(ConnectionsManager.getInstance(currentAccount).getConnectionState())));
+            }, SEND_CODE_TIMEOUT);
         }
+
+        private int sendCodeAttempt;
 
         private boolean numberFilled;
         public void fillNumber() {

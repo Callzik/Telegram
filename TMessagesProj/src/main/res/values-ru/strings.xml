@@ -329,4 +329,6 @@
     <string name="PluginShare">Поделиться файлом</string>
     <string name="PluginAbout">Версия %1$s · ID %2$s</string>
     <string name="PluginAuthor">Автор: %1$s</string>
+    <string name="ForkLoginNoResponse">Сервер не ответил на запрос кода за 20 секунд. Соединение: %1$s. Проверьте VPN или прокси и попробуйте ещё раз.</string>
+    <string name="ForkLoginError">Ошибка входа: %1$s</string>
 </resources>

@@ -11614,4 +11614,6 @@
     <string name="PluginShare">Share file</string>
     <string name="PluginAbout">Version %1$s · ID %2$s</string>
     <string name="PluginAuthor">Author: %1$s</string>
+    <string name="ForkLoginNoResponse">The server didn\'t answer the login code request in 20 seconds. Connection: %1$s. Check your VPN or proxy and try again.</string>
+    <string name="ForkLoginError">Login error: %1$s</string>
 </resources>
