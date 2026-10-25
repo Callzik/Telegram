@@ -140,6 +140,10 @@ public final class ForkSettings {
 
     // Called for every outgoing request. Returns true if the request must not be sent.
     public static boolean filterRequest(TLObject object) {
+        // Client telemetry (help.saveAppLog) is never sent
+        if (object instanceof TLRPC.TL_help_saveAppLog) {
+            return true;
+        }
         load();
         if (!ghostMode) {
             return false;
