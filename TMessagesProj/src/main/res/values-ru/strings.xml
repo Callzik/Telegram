@@ -282,6 +282,9 @@
     <string name="ForkHideHelp">Раздел «Помощь» в настройках</string>
     <string name="ForkHideShare">Кнопку «Поделиться» у постов</string>
     <string name="ForkHideInfo">Чтобы истории снова появились, перезапустите приложение.</string>
+    <string name="ForkUpdatesHeader">Обновления</string>
+    <string name="ForkCheckUpdates">Проверить обновления</string>
+    <string name="ForkUpdatesInfo">Новые сборки MyTelegram скачиваются с GitHub разработчика. Приложение также проверяет их само.</string>
     <string name="ForkSaveEdits">Сохранять историю правок</string>
     <string name="ForkEditHistory">История правок</string>
     <string name="ForkEditCurrent">Текущая версия</string>
