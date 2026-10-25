@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 6,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b6-arm64.apk",
-  "changelog": "Исправлен вход: после ввода номера стрелка больше не зависает (добавление второго аккаунта). Код приходит обычной SMS или в Telegram, без проверки Play Integrity. Всё из build 5 на месте."
+  "build": 7,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b7-arm64.apk",
+  "changelog": "Добавление второго аккаунта: после подтверждения номера вход больше не замирает. Убран запрос разрешений на звонки при добавлении аккаунта. Если сервер не отвечает 20 секунд, появится окно с причиной."
 }
