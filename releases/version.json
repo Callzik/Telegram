@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 5,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b5-arm64.apk",
-  "changelog": "Вырезана аналитика и телеметрия: App Indexing, метрики доставки FCM, SafetyNet, отправка help.saveAppLog, рекламный ID. Пуши работают как раньше. Плюс иконка корзины у удалённых сообщений из build 4."
+  "build": 6,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b6-arm64.apk",
+  "changelog": "Исправлен вход: после ввода номера стрелка больше не зависает (добавление второго аккаунта). Код приходит обычной SMS или в Telegram, без проверки Play Integrity. Всё из build 5 на месте."
 }
