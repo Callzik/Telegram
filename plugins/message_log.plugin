@@ -1,0 +1,40 @@
+"""Shows how to use update and request hooks."""
+
+from base_plugin import BasePlugin, HookResult
+from ui.bulletin import BulletinHelper
+from ui.settings import Divider, Switch
+
+__id__ = "message_log"
+__name__ = "Message log"
+__description__ = "Writes incoming messages and sent read receipts to the plugin log (long-press the plugin → Log). An example for plugin authors."
+__author__ = "MyTelegram"
+__version__ = "1.0"
+
+
+class MessageLogPlugin(BasePlugin):
+
+    def on_plugin_load(self):
+        self.add_hook("TL_updateNewMessage")
+        self.add_hook("TL_updateNewChannelMessage")
+        self.add_hook("TL_messages_readHistory")
+
+    def create_settings(self):
+        return [
+            Switch("bulletins", "Show a bulletin for each message", False),
+            Divider("The log keeps the last 300 lines."),
+        ]
+
+    def on_update_hook(self, update_name, account, update):
+        message = update.message
+        text = getattr(message, "message", None)
+        if text:
+            peer = message.peer_id
+            chat = peer.user_id or peer.chat_id or peer.channel_id
+            self.log(f"[{account}] {chat}: {text[:200]}")
+            if self.get_setting("bulletins", False):
+                BulletinHelper.show_info(text[:100])
+        return HookResult()
+
+    def pre_request_hook(self, request_name, account, request):
+        self.log(f"[{account}] read up to {request.max_id}")
+        return HookResult()

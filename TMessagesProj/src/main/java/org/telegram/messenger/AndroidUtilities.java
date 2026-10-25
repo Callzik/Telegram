@@ -4287,6 +4287,10 @@ public class AndroidUtilities {
 
     public static boolean openForView(File f, String fileName, String mimeType, final Activity activity, Theme.ResourcesProvider resourcesProvider, boolean restrict) {
         if (f != null && f.exists()) {
+            if (fileName != null && fileName.toLowerCase(Locale.ROOT).endsWith(org.telegram.messenger.plugins.PluginsController.PLUGIN_EXT)) {
+                org.telegram.ui.PluginsActivity.showInstallDialog(LaunchActivity.getSafeLastFragment(), f);
+                return true;
+            }
             String realMimeType = null;
             Intent intent = new Intent(Intent.ACTION_VIEW);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);

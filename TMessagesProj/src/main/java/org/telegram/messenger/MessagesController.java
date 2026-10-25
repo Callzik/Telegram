@@ -56,6 +56,7 @@ import org.telegram.SQLite.SQLiteDatabase;
 import org.telegram.SQLite.SQLiteException;
 import org.telegram.SQLite.SQLitePreparedStatement;
 import org.telegram.messenger.browser.Browser;
+import org.telegram.messenger.plugins.PluginsController;
 import org.telegram.messenger.support.LongSparseIntArray;
 import org.telegram.messenger.support.LongSparseLongArray;
 import org.telegram.messenger.utils.EphemeralMessagesHelper;
@@ -17860,6 +17861,14 @@ public class MessagesController extends BaseController implements NotificationCe
 
     // must be run from Utilities.stageQueue
     public void processUpdates(final TLRPC.Updates updates, boolean fromQueue) {
+        if (!fromQueue && PluginsController.isUpdatesHooked(updates)) {
+            PluginsController.interceptUpdates(currentAccount, updates, u -> processUpdatesInternal(u, false));
+            return;
+        }
+        processUpdatesInternal(updates, fromQueue);
+    }
+
+    private void processUpdatesInternal(final TLRPC.Updates updates, boolean fromQueue) {
         if (updates instanceof TLRPC.TL_updates || updates instanceof TLRPC.TL_updatesCombined) {
             boolean hasMessageIdUpdates = false;
             for (int i = 0; i < updates.updates.size(); i++) {

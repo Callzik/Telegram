@@ -699,6 +699,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         }
 
         items.add(SettingCell.Factory.of(90, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.settings_features, getString(R.string.ForkSettings), getString(R.string.ForkSettingsInfo)));
+        items.add(SettingCell.Factory.of(91, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_plugins, getString(R.string.Plugins), getString(R.string.PluginsInfo)));
         items.add(SettingCell.Factory.of(1, IconBackgroundColors.BLUE.top, IconBackgroundColors.BLUE.bottom, R.drawable.settings_account, getString(R.string.SettingsAccount), getString(R.string.SettingsAccountInfo)));
         items.add(SettingCell.Factory.of(2, IconBackgroundColors.ORANGE.top, IconBackgroundColors.ORANGE.bottom, R.drawable.settings_chat, getString(R.string.SettingsChat), getString(R.string.SettingsChatInfo)));
         items.add(SettingCell.Factory.of(3, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_privacy, getString(R.string.SettingsPrivacySecurity), getString(R.string.SettingsPrivacySecurityInfo)));
@@ -849,6 +850,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 break;
             case 90:
                 presentSettingFragment(new ForkSettingsActivity());
+                break;
+            case 91:
+                presentSettingFragment(new PluginsActivity());
                 break;
             case 10:
                 presentSettingFragment(new LanguageSelectActivity());
