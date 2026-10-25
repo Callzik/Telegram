@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 3,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-arm64.apk",
-  "changelog": "Плагины на Python в стиле exteraGram: Настройки → Плагины, установка из файла или из чата."
+  "build": 4,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b4-arm64.apk",
+  "changelog": "Удалённые сообщения помечаются иконкой корзины у времени. Настройки форка → «Помечать удалённые сообщения» и «Иконкой вместо текста»."
 }
