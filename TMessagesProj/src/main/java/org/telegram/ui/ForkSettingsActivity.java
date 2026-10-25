@@ -4,8 +4,11 @@ import static org.telegram.messenger.LocaleController.getString;
 
 import android.view.View;
 
+import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.ForkConfig;
 import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.R;
+import org.telegram.messenger.browser.Browser;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.UItem;
 import org.telegram.ui.Components.UniversalAdapter;
@@ -28,6 +31,7 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int HIDE_PREMIUM = 11;
     private static final int HIDE_HELP = 12;
     private static final int HIDE_SHARE = 13;
+    private static final int CHECK_UPDATES = 40;
 
     @Override
     public boolean onFragmentCreate() {
@@ -71,10 +75,20 @@ public class ForkSettingsActivity extends UniversalFragment {
         items.add(UItem.asCheck(HIDE_HELP, getString(R.string.ForkHideHelp)).setChecked(ForkSettings.hideHelpSettings));
         items.add(UItem.asCheck(HIDE_SHARE, getString(R.string.ForkHideShare)).setChecked(ForkSettings.hideShareButton));
         items.add(UItem.asShadow(getString(R.string.ForkHideInfo)));
+
+        items.add(UItem.asHeader(getString(R.string.ForkUpdatesHeader)));
+        items.add(UItem.asButton(CHECK_UPDATES, getString(R.string.ForkCheckUpdates), BuildVars.BUILD_VERSION_STRING + " (" + ForkConfig.FORK_BUILD + ")"));
+        items.add(UItem.asShadow(getString(R.string.ForkUpdatesInfo)));
     }
 
     @Override
     protected void onClick(UItem item, View view, int position, float x, float y) {
+        if (item.id == CHECK_UPDATES) {
+            if (LaunchActivity.instance != null) {
+                LaunchActivity.instance.checkAppUpdate(true, new Browser.Progress());
+            }
+            return;
+        }
         switch (item.id) {
             case GHOST_MODE: ForkSettings.ghostMode = !ForkSettings.ghostMode; break;
             case GHOST_NO_READ: ForkSettings.ghostNoRead = !ForkSettings.ghostNoRead; break;

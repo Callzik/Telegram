@@ -53,6 +53,7 @@ import androidx.core.view.inputmethod.InputContentInfoCompat;
 
 import org.json.JSONObject;
 import org.telegram.messenger.audioinfo.AudioInfo;
+import org.telegram.messenger.plugins.PluginsController;
 import org.telegram.messenger.support.SparseLongArray;
 import org.telegram.messenger.utils.EphemeralMessagesHelper;
 import org.telegram.messenger.utils.tlutils.AmountUtils;
@@ -4415,6 +4416,11 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     }
 
     public void sendMessage(SendMessageParams sendMessageParams) {
+        if (!sendMessageParams.pluginsProcessed && PluginsController.isSendMessageHooked()) {
+            sendMessageParams.pluginsProcessed = true;
+            PluginsController.interceptSendMessage(currentAccount, sendMessageParams, this::sendMessage);
+            return;
+        }
         final SendMessageChatArguments sendMessageChatArguments = sendMessageParams.sendMessageChatArguments != null ?
                 sendMessageParams.sendMessageChatArguments : SendMessageChatArguments.EMPTY;
         String message = sendMessageParams.message;
@@ -12245,6 +12251,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
     }
 
     public static class SendMessageParams {
+        public boolean pluginsProcessed;
         public String message;
         public String caption;
         public TLRPC.MessageMedia location;

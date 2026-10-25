@@ -1,6 +1,7 @@
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 
 apply plugin: 'com.android.library'
+apply plugin: 'com.chaquo.python'
 apply plugin: 'org.telegram.build-plugin'
 apply plugin: 'idea'
 
@@ -107,6 +108,9 @@ dependencies {
     implementation 'com.google.android.recaptcha:recaptcha:18.7.1'
 
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+
+    // plugins: method hooks
+    implementation 'top.canyie.pine:core:0.3.0'
 }
 
 android {
@@ -135,8 +139,13 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 23
+        // Chaquopy (Python plugins) needs API 24+ and Python 3.12+ ships only 64-bit ABIs
+        minSdkVersion 24
         targetSdkVersion 36
+
+        ndk {
+            abiFilters "arm64-v8a"
+        }
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
@@ -232,6 +241,12 @@ android {
     }
 
     namespace 'org.telegram.messenger'
+}
+
+chaquopy {
+    defaultConfig {
+        version = "3.13"
+    }
 }
 
 

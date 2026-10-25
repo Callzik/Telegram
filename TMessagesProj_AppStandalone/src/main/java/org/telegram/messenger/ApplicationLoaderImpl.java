@@ -99,7 +99,48 @@ public class ApplicationLoaderImpl extends ApplicationLoader {
     }
 
     @Override
-    public boolean showUpdateAppPopup(Context context, TLRPC.TL_help_appUpdate update, int account) {
+    public boolean isCustomUpdate() {
+        return true;
+    }
+
+    @Override
+    public BetaUpdate getUpdate() {
+        return ForkUpdater.getInstance().getUpdate();
+    }
+
+    @Override
+    public void checkUpdate(boolean force, Runnable whenDone) {
+        ForkUpdater.getInstance().checkForUpdate(force, whenDone);
+    }
+
+    @Override
+    public void downloadUpdate() {
+        ForkUpdater.getInstance().downloadUpdate();
+    }
+
+    @Override
+    public void cancelDownloadingUpdate() {
+        ForkUpdater.getInstance().cancelDownloadingUpdate();
+    }
+
+    @Override
+    public boolean isDownloadingUpdate() {
+        return ForkUpdater.getInstance().isDownloading();
+    }
+
+    @Override
+    public float getDownloadingUpdateProgress() {
+        return ForkUpdater.getInstance().getDownloadingProgress();
+    }
+
+    @Override
+    public File getDownloadedUpdateFile() {
+        return ForkUpdater.getInstance().getDownloadedFile();
+    }
+
+    @Override
+    public boolean showCustomUpdateAppPopup(Context context, BetaUpdate update, int account) {
+        if (update == null) return false;
         try {
             (new UpdateAppAlertDialog(context, update, account)).show();
         } catch (Exception e) {

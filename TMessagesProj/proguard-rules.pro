@@ -58,3 +58,7 @@
 # Use -keep to explicitly keep any other classes shrinking would remove
 #-dontoptimize
 #-dontobfuscate
+# Plugins: Python code reaches app classes by name through Chaquopy, so keep the names
+-keep class org.telegram.messenger.plugins.** { *; }
+-keepnames class org.telegram.** { *; }
+-keepnames class androidx.** { *; }
