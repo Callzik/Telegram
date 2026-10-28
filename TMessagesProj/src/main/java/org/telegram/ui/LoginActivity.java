@@ -109,7 +109,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.safetynet.SafetyNet;
 import com.google.android.gms.tasks.Task;
 import com.google.android.play.core.integrity.IntegrityManager;
 import com.google.android.play.core.integrity.IntegrityManagerFactory;
@@ -122,6 +121,7 @@ import org.telegram.PhoneFormat.PhoneFormat;
 import org.telegram.messenger.AccountInstance;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.ApplicationLoader;
+import org.telegram.messenger.ForkConfig;
 import org.telegram.messenger.AuthTokensHelper;
 import org.telegram.messenger.BillingController;
 import org.telegram.messenger.BuildConfig;
@@ -395,6 +395,18 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
     private boolean[] postedEditDoneCallback = new boolean[2];
 
     private boolean forceDisableSafetyNet;
+    private static final long SEND_CODE_TIMEOUT = 20_000;
+
+    private static String connectionStateName(int state) {
+        switch (state) {
+            case ConnectionsManager.ConnectionStateConnecting: return "connecting";
+            case ConnectionsManager.ConnectionStateWaitingForNetwork: return "waiting for network";
+            case ConnectionsManager.ConnectionStateConnected: return "connected";
+            case ConnectionsManager.ConnectionStateConnectingToProxy: return "connecting to proxy";
+            case ConnectionsManager.ConnectionStateUpdating: return "updating";
+            default: return String.valueOf(state);
+        }
+    }
 
     private static class ProgressView extends View {
 
@@ -963,6 +975,15 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
 
     @Override
     public void onRequestPermissionsResultFragment(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == 6) {
+            // Fork: go on even if the request was interrupted (empty results), or the screen stays stuck
+            checkPermissions = false;
+            if (currentViewNum == VIEW_PHONE_INPUT) {
+                ((PhoneView)views[currentViewNum]).confirmedNumber = true;
+                views[currentViewNum].onNextPressed(null);
+            }
+            return;
+        }
         if (permissions.length == 0 || grantResults.length == 0) return;
 
         boolean granted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
@@ -1768,7 +1789,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             return;
         }
         if (res.type instanceof TLRPC.TL_auth_sentCodeTypeFirebaseSms && !res.type.verifiedFirebase && !isRequestingFirebaseSms) {
-            if (PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices()) {
+            if (!ForkConfig.NO_FIREBASE_SMS && PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices()) {
                 TLRPC.TL_auth_sentCodeTypeFirebaseSms r = (TLRPC.TL_auth_sentCodeTypeFirebaseSms) res.type;
                 needShowProgress(0);
                 isRequestingFirebaseSms = true;
@@ -1812,72 +1833,13 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                             resendCodeFromSafetyNet(params, res, reason);
                         });
                 } else {
-                    SafetyNet.getClient(ApplicationLoader.applicationContext).attest(res.type.nonce, BuildVars.SAFETYNET_KEY)
-                    .addOnSuccessListener(attestationResponse -> {
-                        String jws = attestationResponse.getJwsResult();
-
-                        if (jws != null) {
-                            TLRPC.TL_auth_requestFirebaseSms req = new TLRPC.TL_auth_requestFirebaseSms();
-                            req.phone_number = phone;
-                            req.phone_code_hash = res.phone_code_hash;
-                            req.safety_net_token = jws;
-                            req.flags |= 1;
-
-                            String[] spl = jws.split("\\.");
-                            if (spl.length > 0) {
-                                try {
-                                    JSONObject obj = new JSONObject(new String(Base64.decode(spl[1].getBytes(StandardCharsets.UTF_8), 0)));
-                                    final boolean basicIntegrity = obj.optBoolean("basicIntegrity");
-                                    final boolean ctsProfileMatch = obj.optBoolean("ctsProfileMatch");
-                                    if (basicIntegrity && ctsProfileMatch) {
-                                        ConnectionsManager.getInstance(currentAccount).sendRequest(req, (response, error) -> {
-                                            if (response instanceof TLRPC.TL_boolTrue) {
-                                                needHideProgress(false);
-                                                isRequestingFirebaseSms = false;
-                                                res.type.verifiedFirebase = true;
-                                                AndroidUtilities.runOnUIThread(() -> fillNextCodeParams(params, res, animate));
-                                            } else {
-                                                FileLog.d("{SAFETYNET_REQUESTFIREBASESMS_FALSE} Resend firebase sms because auth.requestFirebaseSms = false");
-                                                resendCodeFromSafetyNet(params, res, "SAFETYNET_REQUESTFIREBASESMS_FALSE");
-                                            }
-                                        }, ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin);
-                                    } else {
-                                        if (!basicIntegrity && !ctsProfileMatch) {
-                                            FileLog.d("{SAFETYNET_BASICINTEGRITY_CTSPROFILEMATCH_FALSE} Resend firebase sms because ctsProfileMatch = false and basicIntegrity = false");
-                                            resendCodeFromSafetyNet(params, res, "SAFETYNET_BASICINTEGRITY_CTSPROFILEMATCH_FALSE");
-                                        } else if (!basicIntegrity) {
-                                            FileLog.d("{SAFETYNET_BASICINTEGRITY_FALSE} Resend firebase sms because basicIntegrity = false");
-                                            resendCodeFromSafetyNet(params, res, "SAFETYNET_BASICINTEGRITY_FALSE");
-                                        } else if (!ctsProfileMatch) {
-                                            FileLog.d("{SAFETYNET_CTSPROFILEMATCH_FALSE} Resend firebase sms because ctsProfileMatch = false");
-                                            resendCodeFromSafetyNet(params, res, "SAFETYNET_CTSPROFILEMATCH_FALSE");
-                                        }
-                                    }
-                                } catch (JSONException e) {
-                                    FileLog.e(e);
-
-                                    FileLog.d("{SAFETYNET_JSON_EXCEPTION} Resend firebase sms because of exception");
-                                    resendCodeFromSafetyNet(params, res, "SAFETYNET_JSON_EXCEPTION");
-                                }
-                            } else {
-                                FileLog.d("{SAFETYNET_CANT_SPLIT} Resend firebase sms because can't split JWS token");
-                                resendCodeFromSafetyNet(params, res, "SAFETYNET_CANT_SPLIT");
-                            }
-                        } else {
-                            FileLog.d("{SAFETYNET_NULL_JWS} Resend firebase sms because JWS = null");
-                            resendCodeFromSafetyNet(params, res, "SAFETYNET_NULL_JWS");
-                        }
-                    })
-                    .addOnFailureListener(e -> {
-                        FileLog.e(e);
-
-                        final String reason = "SAFETYNET_EXCEPTION_" + errorString(e);
-                        FileLog.d("{"+reason+"} Resend firebase sms because of safetynet exception");
-                        resendCodeFromSafetyNet(params, res, reason);
-                    });
+                    // SafetyNet Attestation is shut down by Google; fall back to a regular SMS
+                    resendCodeFromSafetyNet(params, res, "SAFETYNET_UNAVAILABLE");
                 }
             } else {
                 FileLog.d("{GOOGLE_PLAY_SERVICES_NOT_AVAILABLE} Resend firebase sms because firebase is not available");
+                // resendCodeFromSafetyNet does nothing unless this flag is set, which left the phone screen stuck
+                isRequestingFirebaseSms = true;
                 resendCodeFromSafetyNet(params, res, "GOOGLE_PLAY_SERVICES_NOT_AVAILABLE");
             }
             return;
@@ -2914,7 +2876,9 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                                 allowReadCallLog = true;
                                 allowReadPhoneNumbers = true;
                             }
-                            if (checkPermissions) {
+                            // Fork: don't ask for call/phone permissions when adding another account, the
+                            // permission round trip could leave the phone screen stuck
+                            if (checkPermissions && !newAccount) {
                                 permissionsItems.clear();
                                 if (!allowCall) {
                                     permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
@@ -2991,7 +2955,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     allowReadPhoneNumbers = getParentActivity().checkSelfPermission(Manifest.permission.READ_PHONE_NUMBERS) == PackageManager.PERMISSION_GRANTED;
                 }
-                if (checkPermissions) {
+                if (checkPermissions && !newAccount) {
                     permissionsItems.clear();
                     if (!allowCall) {
                         permissionsItems.add(Manifest.permission.READ_PHONE_STATE);
@@ -3080,7 +3044,7 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
             settings.allow_flashcall = simcardAvailable && allowCall && allowCancelCall && allowReadCallLog;
             settings.allow_missed_call = simcardAvailable && allowCall;
             settings.allow_app_hash = settings.allow_firebase = PushListenerController.GooglePushListenerServiceProvider.INSTANCE.hasServices();
-            if (forceDisableSafetyNet || TextUtils.isEmpty(BuildVars.SAFETYNET_KEY)) {
+            if (ForkConfig.NO_FIREBASE_SMS || forceDisableSafetyNet || TextUtils.isEmpty(BuildVars.SAFETYNET_KEY)) {
                 settings.allow_firebase = false;
             }
 
@@ -3236,8 +3200,15 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                         } else if (error.text.startsWith("FLOOD_WAIT")) {
                             needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), getString("FloodWait", R.string.FloodWait));
                         } else if (error.code != -1000) {
-                            AlertsCreator.processError(currentAccount, error, LoginActivity.this, req, phoneInputData.phoneNumber);
+                            // Fork: processError ignores 406 errors (e.g. SEND_CODE_UNAVAILABLE), show them instead of nothing
+                            if (AlertsCreator.processError(currentAccount, error, LoginActivity.this, req, phoneInputData.phoneNumber) == null) {
+                                needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginError, error.code + " " + error.text));
+                            }
+                        } else {
+                            FileLog.e("auth.sendCode canceled: " + error.text);
                         }
+                    } else {
+                        needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginError, String.valueOf(error.code)));
                     }
                 }
                 if (!isRequestingFirebaseSms) {
@@ -3245,7 +3216,21 @@ public class LoginActivity extends BaseFragment implements NotificationCenter.No
                 }
             }), ConnectionsManager.RequestFlagFailOnServerErrors | ConnectionsManager.RequestFlagWithoutLogin | ConnectionsManager.RequestFlagTryDifferentDc | ConnectionsManager.RequestFlagEnableUnauthorized);
             needShowProgress(reqId);
+            // Fork: never leave the phone screen silently stuck if the server doesn't answer
+            final int attempt = ++sendCodeAttempt;
+            AndroidUtilities.runOnUIThread(() -> {
+                if (attempt != sendCodeAttempt || !nextPressed) {
+                    return;
+                }
+                FileLog.e("auth.sendCode got no response for account " + currentAccount);
+                ConnectionsManager.getInstance(currentAccount).cancelRequest(reqId, true);
+                nextPressed = false;
+                needHideProgress(false);
+                needShowAlert(getString(R.string.RestorePasswordNoEmailTitle), LocaleController.formatString(R.string.ForkLoginNoResponse, connectionStateName(ConnectionsManager.getInstance(currentAccount).getConnectionState())));
+            }, SEND_CODE_TIMEOUT);
         }
+
+        private int sendCodeAttempt;
 
         private boolean numberFilled;
         public void fillNumber() {

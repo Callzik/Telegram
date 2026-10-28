@@ -75,6 +75,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.AnimationNotificationsLocker;
 import org.telegram.messenger.ApplicationLoader;
@@ -11841,6 +11842,7 @@ public class SharedMediaLayout extends FrameLayout implements NotificationCenter
     }
 
     public void showPremiumFloodWaitBulletin(final boolean isUpload) {
+        if (ForkSettings.hidePremiumPromo()) return;
         if (profileActivity == null) return;
 
 //        final long now = System.currentTimeMillis();

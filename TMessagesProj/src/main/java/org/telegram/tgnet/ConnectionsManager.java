@@ -36,6 +36,7 @@ import org.telegram.messenger.FileLoadOperation;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ForkSettings;
+import org.telegram.messenger.plugins.PluginsController;
 import org.telegram.messenger.FileUploadOperation;
 import org.telegram.messenger.KeepAliveJob;
 import org.telegram.messenger.LocaleController;
@@ -400,6 +401,13 @@ public class ConnectionsManager extends BaseController {
         if (ForkSettings.filterRequest(object)) {
             return;
         }
+        if (PluginsController.interceptRequest(currentAccount, object, req -> sendRequestNow(req, onComplete, onCompleteTimestamp, onQuickAck, onWriteToSocket, flags, datacenterId, connectionType, immediate, requestToken))) {
+            return;
+        }
+        sendRequestNow(object, onComplete, onCompleteTimestamp, onQuickAck, onWriteToSocket, flags, datacenterId, connectionType, immediate, requestToken);
+    }
+
+    private void sendRequestNow(TLObject object, RequestDelegate onComplete, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("send request " + object + " with token = " + requestToken);
         }
@@ -462,9 +470,7 @@ public class ConnectionsManager extends BaseController {
                         FileLog.d("java received " + resp + (error != null ? " error = " + error : "") + " messageId = 0x" + Long.toHexString(requestMsgId));
                         FileLog.dumpResponseAndRequest(currentAccount, object, resp, error, requestMsgId, finalStartRequestTime, requestToken);
                     }
-                    final TLObject finalResponse = resp;
-                    final TLRPC.TL_error finalError = error;
-                    Utilities.stageQueue.postRunnable(() -> {
+                    final Utilities.Callback2<TLObject, TLRPC.TL_error> deliver = (finalResponse, finalError) -> {
                         if (onComplete != null) {
                             onComplete.run(finalResponse, finalError);
                         } else if (onCompleteTimestamp != null) {
@@ -476,7 +482,14 @@ public class ConnectionsManager extends BaseController {
                         if (finalResponse != null) {
                             finalResponse.freeResources();
                         }
-                    });
+                    };
+                    final TLObject finalResp = resp;
+                    final TLRPC.TL_error finalErr = error;
+                    if (PluginsController.isResponseHooked(object)) {
+                        PluginsController.interceptResponse(currentAccount, object, finalResp, finalErr, deliver);
+                    } else {
+                        Utilities.stageQueue.postRunnable(() -> deliver.run(finalResp, finalErr));
+                    }
                 } catch (Exception e) {
                     FileLog.e(e);
                 }
