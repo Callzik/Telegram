@@ -148,6 +148,14 @@ android {
 
         vectorDrawables.generatedDensities = ['mdpi', 'hdpi', 'xhdpi', 'xxhdpi']
 
+        // Fork: own api_id/api_hash from my.telegram.org. They are kept out of git: set MYTG_API_ID and
+        // MYTG_API_HASH in local.properties or the environment. Without them the public test key is used,
+        // which Telegram limits (API_ID_PUBLISHED_FLOOD on login).
+        def apiId = getProps("MYTG_API_ID") ?: System.getenv("MYTG_API_ID") ?: "4"
+        def apiHash = getProps("MYTG_API_HASH") ?: System.getenv("MYTG_API_HASH") ?: "014b35b6184100b085b0d0572f9b5103"
+        buildConfigField "int", "APP_ID", apiId
+        buildConfigField "String", "APP_HASH", "\"" + apiHash + "\""
+
         multiDexEnabled true
 
         externalNativeBuild {
