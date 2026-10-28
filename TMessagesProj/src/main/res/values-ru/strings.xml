@@ -292,7 +292,10 @@
     <string name="ForkEditCurrent">Текущая версия</string>
     <string name="ForkPremiumHeader">Локальный Premium</string>
     <string name="ForkLocalPremium">Включить клиентские функции Premium</string>
-    <string name="ForkLocalPremiumInfo">До 4 аккаунтов и иконки приложения из Premium. Лимиты, которые проверяют серверы Telegram (папки, закреплённые чаты, размер и скорость загрузки), приложение изменить не может.</string>
+    <string name="ForkLocalPremiumInfo">Всегда: до 4 аккаунтов и иконки приложения из Premium. То, что проверяют серверы Telegram (скорость и размер загрузки, расшифровка голосовых, эмодзи-статус, Premium-стикеры и реакции, создание лишних папок и закрепов), приложение разблокировать не может.</string>
+    <string name="ForkPremiumTranslate">Перевод чатов целиком</string>
+    <string name="ForkPremiumFolders">Не блокировать папки сверх лимита</string>
+    <string name="ForkHidePremiumPromo">Рекламу Premium (баннеры скорости, подсказки)</string>
     <string name="ForkAppearanceHeader">Оформление</string>
     <string name="ForkAmoled">Чисто чёрная тёмная тема (AMOLED)</string>
     <string name="ForkSystemFont">Системный шрифт</string>

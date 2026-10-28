@@ -11577,7 +11577,10 @@
     <string name="ForkEditCurrent">Current version</string>
     <string name="ForkPremiumHeader">Local Premium</string>
     <string name="ForkLocalPremium">Unlock client-side Premium features</string>
-    <string name="ForkLocalPremiumInfo">Up to 4 accounts and Premium app icons. Limits checked by Telegram servers (folders, pinned chats, upload size, speed) can\'t be changed by the app.</string>
+    <string name="ForkLocalPremiumInfo">Always on: up to 4 accounts and Premium app icons. Anything Telegram servers check (upload speed and size, voice-to-text, emoji status, Premium stickers and reactions, creating extra folders and pins) can\'t be unlocked by the app.</string>
+    <string name="ForkPremiumTranslate">Translate entire chats</string>
+    <string name="ForkPremiumFolders">Don\'t lock folders over the limit</string>
+    <string name="ForkHidePremiumPromo">Premium ads (speed banners, hints)</string>
     <string name="ForkAppearanceHeader">Appearance</string>
     <string name="ForkAmoled">Pure black dark theme (AMOLED)</string>
     <string name="ForkSystemFont">System font</string>

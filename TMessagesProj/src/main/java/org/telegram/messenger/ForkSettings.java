@@ -20,6 +20,8 @@ public final class ForkSettings {
     public static boolean markDeleted;
     public static boolean markDeletedIcon;
     public static boolean localPremium;
+    public static boolean premiumTranslate;
+    public static boolean premiumFolders;
     public static boolean amoledDark;
     public static boolean systemFont;
 
@@ -28,6 +30,7 @@ public final class ForkSettings {
     public static boolean hidePremiumSettings;
     public static boolean hideHelpSettings;
     public static boolean hideShareButton;
+    public static boolean hidePremiumPromo;
 
     private static boolean loaded;
 
@@ -52,12 +55,15 @@ public final class ForkSettings {
         markDeleted = p.getBoolean("markDeleted", true);
         markDeletedIcon = p.getBoolean("markDeletedIcon", true);
         localPremium = p.getBoolean("localPremium", true);
+        premiumTranslate = p.getBoolean("premiumTranslate", true);
+        premiumFolders = p.getBoolean("premiumFolders", true);
         amoledDark = p.getBoolean("amoledDark", false);
         systemFont = p.getBoolean("systemFont", false);
         hideStories = p.getBoolean("hideStories", true);
         hidePremiumSettings = p.getBoolean("hidePremiumSettings", true);
         hideHelpSettings = p.getBoolean("hideHelpSettings", false);
         hideShareButton = p.getBoolean("hideShareButton", false);
+        hidePremiumPromo = p.getBoolean("hidePremiumPromo", true);
         loaded = true;
     }
 
@@ -72,12 +78,15 @@ public final class ForkSettings {
             .putBoolean("markDeleted", markDeleted)
             .putBoolean("markDeletedIcon", markDeletedIcon)
             .putBoolean("localPremium", localPremium)
+            .putBoolean("premiumTranslate", premiumTranslate)
+            .putBoolean("premiumFolders", premiumFolders)
             .putBoolean("amoledDark", amoledDark)
             .putBoolean("systemFont", systemFont)
             .putBoolean("hideStories", hideStories)
             .putBoolean("hidePremiumSettings", hidePremiumSettings)
             .putBoolean("hideHelpSettings", hideHelpSettings)
             .putBoolean("hideShareButton", hideShareButton)
+            .putBoolean("hidePremiumPromo", hidePremiumPromo)
             .apply();
     }
 
@@ -108,6 +117,18 @@ public final class ForkSettings {
         return localPremium;
     }
 
+    // "Translate entire chat" bar; uses the same messages.translateText as per-message translation
+    public static boolean premiumTranslate() {
+        load();
+        return localPremium && premiumTranslate;
+    }
+
+    // folders over the free limit stay usable instead of locked (the server still limits creating new ones)
+    public static boolean premiumFolders() {
+        load();
+        return localPremium && premiumFolders;
+    }
+
     public static boolean amoledDark() {
         load();
         return amoledDark;
@@ -136,6 +157,12 @@ public final class ForkSettings {
     public static boolean hideShareButton() {
         load();
         return hideShareButton;
+    }
+
+    // Premium upsell: download speed banners, transcription hints
+    public static boolean hidePremiumPromo() {
+        load();
+        return hidePremiumPromo;
     }
 
     // Called for every outgoing request. Returns true if the request must not be sent.

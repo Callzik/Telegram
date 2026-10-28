@@ -27,12 +27,15 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int MARK_DELETED = 14;
     private static final int MARK_DELETED_ICON = 15;
     private static final int LOCAL_PREMIUM = 8;
+    private static final int PREMIUM_TRANSLATE = 16;
+    private static final int PREMIUM_FOLDERS = 17;
     private static final int AMOLED = 20;
     private static final int SYSTEM_FONT = 21;
     private static final int HIDE_STORIES = 10;
     private static final int HIDE_PREMIUM = 11;
     private static final int HIDE_HELP = 12;
     private static final int HIDE_SHARE = 13;
+    private static final int HIDE_PREMIUM_PROMO = 18;
     private static final int CHECK_UPDATES = 40;
 
     @Override
@@ -70,6 +73,10 @@ public class ForkSettingsActivity extends UniversalFragment {
 
         items.add(UItem.asHeader(getString(R.string.ForkPremiumHeader)));
         items.add(UItem.asCheck(LOCAL_PREMIUM, getString(R.string.ForkLocalPremium)).setChecked(ForkSettings.localPremium));
+        if (ForkSettings.localPremium) {
+            items.add(UItem.asCheck(PREMIUM_TRANSLATE, getString(R.string.ForkPremiumTranslate)).setChecked(ForkSettings.premiumTranslate));
+            items.add(UItem.asCheck(PREMIUM_FOLDERS, getString(R.string.ForkPremiumFolders)).setChecked(ForkSettings.premiumFolders));
+        }
         items.add(UItem.asShadow(getString(R.string.ForkLocalPremiumInfo)));
 
         items.add(UItem.asHeader(getString(R.string.ForkAppearanceHeader)));
@@ -80,6 +87,7 @@ public class ForkSettingsActivity extends UniversalFragment {
         items.add(UItem.asHeader(getString(R.string.ForkHideHeader)));
         items.add(UItem.asCheck(HIDE_STORIES, getString(R.string.ForkHideStories)).setChecked(ForkSettings.hideStories));
         items.add(UItem.asCheck(HIDE_PREMIUM, getString(R.string.ForkHidePremium)).setChecked(ForkSettings.hidePremiumSettings));
+        items.add(UItem.asCheck(HIDE_PREMIUM_PROMO, getString(R.string.ForkHidePremiumPromo)).setChecked(ForkSettings.hidePremiumPromo));
         items.add(UItem.asCheck(HIDE_HELP, getString(R.string.ForkHideHelp)).setChecked(ForkSettings.hideHelpSettings));
         items.add(UItem.asCheck(HIDE_SHARE, getString(R.string.ForkHideShare)).setChecked(ForkSettings.hideShareButton));
         items.add(UItem.asShadow(getString(R.string.ForkHideInfo)));
@@ -106,7 +114,17 @@ public class ForkSettingsActivity extends UniversalFragment {
             case SAVE_EDITS: ForkSettings.saveEdits = !ForkSettings.saveEdits; break;
             case MARK_DELETED: ForkSettings.markDeleted = !ForkSettings.markDeleted; break;
             case MARK_DELETED_ICON: ForkSettings.markDeletedIcon = !ForkSettings.markDeletedIcon; break;
-            case LOCAL_PREMIUM: ForkSettings.localPremium = !ForkSettings.localPremium; break;
+            case LOCAL_PREMIUM:
+                ForkSettings.localPremium = !ForkSettings.localPremium;
+                ForkSettings.save();
+                getMessagesController().lockFiltersInternal();
+                break;
+            case PREMIUM_TRANSLATE: ForkSettings.premiumTranslate = !ForkSettings.premiumTranslate; break;
+            case PREMIUM_FOLDERS:
+                ForkSettings.premiumFolders = !ForkSettings.premiumFolders;
+                ForkSettings.save();
+                getMessagesController().lockFiltersInternal();
+                break;
             case AMOLED:
                 ForkSettings.amoledDark = !ForkSettings.amoledDark;
                 ForkSettings.save();
@@ -117,6 +135,7 @@ public class ForkSettingsActivity extends UniversalFragment {
             case HIDE_PREMIUM: ForkSettings.hidePremiumSettings = !ForkSettings.hidePremiumSettings; break;
             case HIDE_HELP: ForkSettings.hideHelpSettings = !ForkSettings.hideHelpSettings; break;
             case HIDE_SHARE: ForkSettings.hideShareButton = !ForkSettings.hideShareButton; break;
+            case HIDE_PREMIUM_PROMO: ForkSettings.hidePremiumPromo = !ForkSettings.hidePremiumPromo; break;
             default: return;
         }
         ForkSettings.save();
