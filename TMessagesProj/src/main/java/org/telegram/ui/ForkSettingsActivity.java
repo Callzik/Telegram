@@ -5,6 +5,7 @@ import static org.telegram.messenger.LocaleController.getString;
 import android.view.View;
 
 import org.telegram.messenger.BuildVars;
+import org.telegram.messenger.ForkBattery;
 import org.telegram.messenger.ForkConfig;
 import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.R;
@@ -37,6 +38,7 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int HIDE_SHARE = 13;
     private static final int HIDE_PREMIUM_PROMO = 18;
     private static final int CHECK_UPDATES = 40;
+    private static final int BATTERY_OPT = 41;
 
     @Override
     public boolean onFragmentCreate() {
@@ -92,6 +94,10 @@ public class ForkSettingsActivity extends UniversalFragment {
         items.add(UItem.asCheck(HIDE_SHARE, getString(R.string.ForkHideShare)).setChecked(ForkSettings.hideShareButton));
         items.add(UItem.asShadow(getString(R.string.ForkHideInfo)));
 
+        items.add(UItem.asHeader(getString(R.string.ForkNotifHeader)));
+        items.add(UItem.asButton(BATTERY_OPT, getString(R.string.ForkBatteryOpt), getString(ForkBattery.isOptimized() ? R.string.ForkBatteryOptOn : R.string.ForkBatteryOptOff)));
+        items.add(UItem.asShadow(getString(R.string.ForkNotifInfo)));
+
         items.add(UItem.asHeader(getString(R.string.ForkUpdatesHeader)));
         items.add(UItem.asButton(CHECK_UPDATES, getString(R.string.ForkCheckUpdates), BuildVars.BUILD_VERSION_STRING + " (" + ForkConfig.FORK_BUILD + ")"));
         items.add(UItem.asShadow(getString(R.string.ForkUpdatesInfo)));
@@ -99,6 +105,10 @@ public class ForkSettingsActivity extends UniversalFragment {
 
     @Override
     protected void onClick(UItem item, View view, int position, float x, float y) {
+        if (item.id == BATTERY_OPT) {
+            ForkBattery.requestExemption(getParentActivity());
+            return;
+        }
         if (item.id == CHECK_UPDATES) {
             if (LaunchActivity.instance != null) {
                 LaunchActivity.instance.checkAppUpdate(true, new Browser.Progress());
@@ -140,6 +150,15 @@ public class ForkSettingsActivity extends UniversalFragment {
         }
         ForkSettings.save();
         listView.adapter.update(true);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Battery optimization state may have changed in the system dialog
+        if (listView != null && listView.adapter != null) {
+            listView.adapter.update(true);
+        }
     }
 
     @Override
