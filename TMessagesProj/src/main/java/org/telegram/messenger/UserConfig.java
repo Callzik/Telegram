@@ -25,7 +25,7 @@ public class UserConfig extends BaseController {
 
     public static int selectedAccount;
     public final static int MAX_ACCOUNT_DEFAULT_COUNT = 3;
-    public final static int MAX_ACCOUNT_COUNT = 4;
+    public final static int MAX_ACCOUNT_COUNT = 8;
 
     private final Object sync = new Object();
     private volatile boolean configLoaded;
@@ -125,7 +125,10 @@ public class UserConfig extends BaseController {
     }
 
     public static int getMaxAccountCount() {
-        return hasPremiumOnAccounts() ? 5 : 3;
+        if (ForkSettings.localPremium()) {
+            return MAX_ACCOUNT_COUNT;
+        }
+        return hasPremiumOnAccounts() ? 4 : 3;
     }
 
     public int getNewMessageId() {
