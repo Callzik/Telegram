@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 11,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b11-arm64.apk",
-  "changelog": "Уведомления приходят стабильно: своё фоновое соединение вместо push от Google (с собственным API-ключом они не доходят). При первом запуске приложение попросит отключить оптимизацию батареи."
+  "build": 12,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b12-arm64.apk",
+  "changelog": "Локальный Premium: до 8 аккаунтов и ускоренное скачивание файлов (как в Premium). Включается в «Настройки форка → Локальный Premium»."
 }
