@@ -11619,4 +11619,15 @@
     <string name="PluginAuthor">Author: %1$s</string>
     <string name="ForkLoginNoResponse">The server didn\'t answer the login code request in 20 seconds. Connection: %1$s. Check your VPN or proxy and try again.</string>
     <string name="ForkLoginError">Login error: %1$s</string>
+    <string name="ForkKeepAliveChannel">Background connection</string>
+    <string name="ForkKeepAliveTitle">Keeping connection for notifications</string>
+    <string name="ForkKeepAliveText">Tap to hide this notification</string>
+    <string name="ForkNotifHeader">Notifications</string>
+    <string name="ForkBatteryOpt">Disable battery optimization</string>
+    <string name="ForkBatteryOptOn">On, notifications may be late</string>
+    <string name="ForkBatteryOptOff">Off</string>
+    <string name="ForkNotifInfo">Telegram doesn\'t send push notifications to apps with their own API key, so MyTelegram keeps its own connection. For it to stay alive, battery optimization must be off. The persistent notification can be hidden in its settings.</string>
+    <string name="ForkBatteryTitle">Reliable notifications</string>
+    <string name="ForkBatteryText">So that messages arrive without delays, allow MyTelegram to work in the background without battery optimization.</string>
+    <string name="ForkBatteryAllow">Allow</string>
 </resources>

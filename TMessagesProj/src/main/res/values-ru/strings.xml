@@ -334,4 +334,15 @@
     <string name="PluginAuthor">Автор: %1$s</string>
     <string name="ForkLoginNoResponse">Сервер не ответил на запрос кода за 20 секунд. Соединение: %1$s. Проверьте VPN или прокси и попробуйте ещё раз.</string>
     <string name="ForkLoginError">Ошибка входа: %1$s</string>
+    <string name="ForkKeepAliveChannel">Фоновое соединение</string>
+    <string name="ForkKeepAliveTitle">Соединение для уведомлений</string>
+    <string name="ForkKeepAliveText">Нажмите, чтобы скрыть это уведомление</string>
+    <string name="ForkNotifHeader">Уведомления</string>
+    <string name="ForkBatteryOpt">Отключить оптимизацию батареи</string>
+    <string name="ForkBatteryOptOn">Включена, уведомления могут опаздывать</string>
+    <string name="ForkBatteryOptOff">Отключена</string>
+    <string name="ForkNotifInfo">Telegram не шлёт push-уведомления приложениям со своим API-ключом, поэтому MyTelegram держит собственное соединение. Чтобы система его не убивала, оптимизация батареи должна быть отключена. Постоянное уведомление можно скрыть в его настройках.</string>
+    <string name="ForkBatteryTitle">Надёжные уведомления</string>
+    <string name="ForkBatteryText">Чтобы сообщения приходили без задержек, разрешите MyTelegram работать в фоне без оптимизации батареи.</string>
+    <string name="ForkBatteryAllow">Разрешить</string>
 </resources>

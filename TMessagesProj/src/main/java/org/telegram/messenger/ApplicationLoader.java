@@ -371,13 +371,20 @@ public class ApplicationLoader extends Application {
         if (preferences.contains("pushService")) {
             enabled = preferences.getBoolean("pushService", true);
         } else {
-            enabled = MessagesController.getMainSettings(UserConfig.selectedAccount).getBoolean("keepAliveService", false);
+            // Fork: on by default, FCM pushes don't arrive for the fork's own api_id
+            enabled = true;
         }
         if (enabled) {
             try {
-                applicationContext.startService(new Intent(applicationContext, NotificationsService.class));
-            } catch (Throwable ignore) {
-
+                Intent intent = new Intent(applicationContext, NotificationsService.class);
+                if (Build.VERSION.SDK_INT >= 26) {
+                    applicationContext.startForegroundService(intent);
+                } else {
+                    applicationContext.startService(intent);
+                }
+            } catch (Throwable e) {
+                // Android 12+ refuses to start it from the background unless battery optimization is off
+                FileLog.e(e);
             }
         } else {
             applicationContext.stopService(new Intent(applicationContext, NotificationsService.class));
