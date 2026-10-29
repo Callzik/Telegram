@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 10,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b10-arm64.apk",
-  "changelog": "Исправлено добавление второго аккаунта: своё API-приложение вместо публичного ключа (ошибка API_ID_PUBLISHED_FLOOD). Плюс расширенный локальный Premium: перевод чатов целиком, папки без лимитов, без рекламы Premium."
+  "build": 11,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b11-arm64.apk",
+  "changelog": "Уведомления приходят стабильно: своё фоновое соединение вместо push от Google (с собственным API-ключом они не доходят). При первом запуске приложение попросит отключить оптимизацию батареи."
 }
