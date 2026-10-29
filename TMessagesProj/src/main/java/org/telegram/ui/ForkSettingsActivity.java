@@ -30,6 +30,7 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int LOCAL_PREMIUM = 8;
     private static final int PREMIUM_TRANSLATE = 16;
     private static final int PREMIUM_FOLDERS = 17;
+    private static final int PREMIUM_DOWNLOAD = 19;
     private static final int AMOLED = 20;
     private static final int SYSTEM_FONT = 21;
     private static final int HIDE_STORIES = 10;
@@ -78,6 +79,7 @@ public class ForkSettingsActivity extends UniversalFragment {
         if (ForkSettings.localPremium) {
             items.add(UItem.asCheck(PREMIUM_TRANSLATE, getString(R.string.ForkPremiumTranslate)).setChecked(ForkSettings.premiumTranslate));
             items.add(UItem.asCheck(PREMIUM_FOLDERS, getString(R.string.ForkPremiumFolders)).setChecked(ForkSettings.premiumFolders));
+            items.add(UItem.asCheck(PREMIUM_DOWNLOAD, getString(R.string.ForkPremiumDownload)).setChecked(ForkSettings.premiumDownload));
         }
         items.add(UItem.asShadow(getString(R.string.ForkLocalPremiumInfo)));
 
@@ -135,6 +137,7 @@ public class ForkSettingsActivity extends UniversalFragment {
                 ForkSettings.save();
                 getMessagesController().lockFiltersInternal();
                 break;
+            case PREMIUM_DOWNLOAD: ForkSettings.premiumDownload = !ForkSettings.premiumDownload; break;
             case AMOLED:
                 ForkSettings.amoledDark = !ForkSettings.amoledDark;
                 ForkSettings.save();

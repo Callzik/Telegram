@@ -22,6 +22,7 @@ public final class ForkSettings {
     public static boolean localPremium;
     public static boolean premiumTranslate;
     public static boolean premiumFolders;
+    public static boolean premiumDownload;
     public static boolean amoledDark;
     public static boolean systemFont;
 
@@ -57,6 +58,7 @@ public final class ForkSettings {
         localPremium = p.getBoolean("localPremium", true);
         premiumTranslate = p.getBoolean("premiumTranslate", true);
         premiumFolders = p.getBoolean("premiumFolders", true);
+        premiumDownload = p.getBoolean("premiumDownload", true);
         amoledDark = p.getBoolean("amoledDark", false);
         systemFont = p.getBoolean("systemFont", false);
         hideStories = p.getBoolean("hideStories", true);
@@ -80,6 +82,7 @@ public final class ForkSettings {
             .putBoolean("localPremium", localPremium)
             .putBoolean("premiumTranslate", premiumTranslate)
             .putBoolean("premiumFolders", premiumFolders)
+            .putBoolean("premiumDownload", premiumDownload)
             .putBoolean("amoledDark", amoledDark)
             .putBoolean("systemFont", systemFont)
             .putBoolean("hideStories", hideStories)
@@ -111,7 +114,7 @@ public final class ForkSettings {
         return saveEdits;
     }
 
-    // client-side only: 4 accounts instead of 3 and premium app icons
+    // client-side only: up to 8 accounts instead of 3 and premium app icons
     public static boolean localPremium() {
         load();
         return localPremium;
@@ -127,6 +130,12 @@ public final class ForkSettings {
     public static boolean premiumFolders() {
         load();
         return localPremium && premiumFolders;
+    }
+
+    // parallel download connections and in-flight budget of Premium (the server may still throttle)
+    public static boolean premiumDownload() {
+        load();
+        return localPremium && premiumDownload;
     }
 
     public static boolean amoledDark() {
