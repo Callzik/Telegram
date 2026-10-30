@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 12,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b12-arm64.apk",
-  "changelog": "Локальный Premium: до 8 аккаунтов и ускоренное скачивание файлов (как в Premium). Включается в «Настройки форка → Локальный Premium»."
+  "build": 13,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b13-arm64.apk",
+  "changelog": "Плагины .elyx (новый формат exteraGram): открываются из чата и ставятся как обычные, работает import библиотек вроде ZwyLib."
 }
