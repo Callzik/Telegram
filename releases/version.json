@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 14,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b14-arm64.apk",
-  "changelog": "Совместимость с ZwyLib 3 и плагинами на ней: эмуляция внутренностей exteraGram (хуки Xposed, контроллер плагинов, настройки, markdown)."
+  "build": 15,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b15-arm64.apk",
+  "changelog": "Исправлена ошибка KeyError: 'zwylib' при установке ZwyLib после неудачной загрузки."
 }
