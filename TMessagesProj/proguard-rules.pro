@@ -62,5 +62,8 @@
 -keep class org.telegram.messenger.plugins.** { *; }
 -keep class com.exteragram.messenger.** { *; }
 -keep class de.robv.android.xposed.** { *; }
+-keep class top.canyie.pine.** { *; }
+-keepclassmembers class top.canyie.pine.** { *; }
+-dontwarn top.canyie.pine.**
 -keepnames class org.telegram.** { *; }
 -keepnames class androidx.** { *; }
