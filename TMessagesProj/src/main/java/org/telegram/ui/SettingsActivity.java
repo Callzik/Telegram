@@ -530,6 +530,16 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         setInfo(getUserConfig().getCurrentUser());
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Fork settings (ghost mode, hidden number) may have changed on another screen
+        if (listView != null && listView.adapter != null) {
+            setInfo(getUserConfig().getCurrentUser());
+            listView.adapter.update(false);
+        }
+    }
+
     public void setInfo(TLRPC.User user) {
         if (avatarView == null) return;
         if (avatarUploadingRequest != -1) return;
@@ -539,7 +549,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         titleView.setText(UserObject.getUserName(user));
         final StringBuilder sb = new StringBuilder();
         if (user != null) {
-            sb.append(PhoneFormat.getInstance().format("+" + user.phone));
+            sb.append(ForkSettings.ownPhone(user.phone));
         }
         final String username = UserObject.getPublicUsername(user);
         if (username != null) {
@@ -698,6 +708,9 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
             items.add(UItem.asShadow(null));
         }
 
+        if (ForkSettings.ghostQuickToggle()) {
+            items.add(SettingCell.Factory.of(92, IconBackgroundColors.GRAY.top, IconBackgroundColors.GRAY.bottom, R.drawable.ghost, getString(R.string.ForkGhostMode), null, getString(ForkSettings.ghostMode ? R.string.ForkGhostOn : R.string.ForkGhostOff)));
+        }
         items.add(SettingCell.Factory.of(90, IconBackgroundColors.PURPLE.top, IconBackgroundColors.PURPLE.bottom, R.drawable.settings_features, getString(R.string.ForkSettings), getString(R.string.ForkSettingsInfo)));
         items.add(SettingCell.Factory.of(91, IconBackgroundColors.GREEN.top, IconBackgroundColors.GREEN.bottom, R.drawable.settings_plugins, getString(R.string.Plugins), getString(R.string.PluginsInfo)));
         items.add(SettingCell.Factory.of(1, IconBackgroundColors.BLUE.top, IconBackgroundColors.BLUE.bottom, R.drawable.settings_account, getString(R.string.SettingsAccount), getString(R.string.SettingsAccountInfo)));
@@ -853,6 +866,10 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
                 break;
             case 91:
                 presentSettingFragment(new PluginsActivity());
+                break;
+            case 92:
+                ForkSettings.toggleGhost();
+                listView.adapter.update(true);
                 break;
             case 10:
                 presentSettingFragment(new LanguageSelectActivity());

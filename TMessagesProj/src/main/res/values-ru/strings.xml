@@ -272,6 +272,15 @@
     <string name="ForkGhostNoTyping">Не показывать «печатает»</string>
     <string name="ForkGhostOffline">Всегда быть офлайн</string>
     <string name="ForkGhostInfo">Собеседники не увидят, что вы прочитали сообщение, печатаете или в сети. Отправка сообщения всё равно отмечает чат прочитанным на сервере.</string>
+    <string name="ForkGhostQuick">Переключатель в настройках</string>
+    <string name="ForkGhostOn">Вкл.</string>
+    <string name="ForkGhostOff">Выкл.</string>
+    <string name="ForkPrivacyHeader">Конфиденциальность</string>
+    <string name="ForkHidePhone">Скрывать мой номер</string>
+    <string name="ForkHideDevice">Скрывать модель устройства</string>
+    <string name="ForkNoLinkPreview">Не загружать превью ссылок при наборе</string>
+    <string name="ForkPrivacyInfo">Номер не показывается в настройках и профиле, удобно для скриншотов. Вместо модели телефона сервер и список сеансов видят «Android», применяется после перезапуска. Без превью ссылка не уходит на сервер, пока сообщение не отправлено.</string>
+    <string name="ForkPhoneHidden">Номер скрыт</string>
     <string name="ForkMessagesHeader">Сообщения</string>
     <string name="ForkSaveDeleted">Сохранять удалённые сообщения</string>
     <string name="ForkSaveDeletedInfo">Сообщения, которые удалили другие, остаются на этом устройстве с пометкой «удалено». Прошлые версии изменённых сообщений доступны в меню сообщения. Сохраняется только то, что уже загружено на устройство.</string>

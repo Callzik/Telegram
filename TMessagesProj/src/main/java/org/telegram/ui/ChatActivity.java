@@ -14326,6 +14326,15 @@ public class ChatActivity extends BaseFragment implements
                 return;
             }
 
+            if (ForkSettings.noLinkPreviewTyping()) {
+                // the link stays on the device until the message is sent
+                AndroidUtilities.runOnUIThread(() -> {
+                    foundWebPage = null;
+                    fallbackFieldPanel();
+                });
+                return;
+            }
+
             final TL_account.getWebPagePreview req = new TL_account.getWebPagePreview();
             if (textToCheck instanceof String) {
                 req.message = (String) textToCheck;

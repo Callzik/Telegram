@@ -11557,6 +11557,15 @@
     <string name="ForkGhostNoTyping">Don\'t send typing status</string>
     <string name="ForkGhostOffline">Always appear offline</string>
     <string name="ForkGhostInfo">Others won\'t see that you read their messages, are typing or are online. Sending a message still marks the chat as read on the server.</string>
+    <string name="ForkGhostQuick">Toggle in Settings</string>
+    <string name="ForkGhostOn">On</string>
+    <string name="ForkGhostOff">Off</string>
+    <string name="ForkPrivacyHeader">Privacy</string>
+    <string name="ForkHidePhone">Hide my phone number</string>
+    <string name="ForkHideDevice">Hide device model</string>
+    <string name="ForkNoLinkPreview">Don\'t load link previews while typing</string>
+    <string name="ForkPrivacyInfo">Your number is hidden in Settings and your profile, handy for screenshots. Instead of the phone model, the server and the sessions list see Android; applies after a restart. Without previews a link doesn\'t reach the server until the message is sent.</string>
+    <string name="ForkPhoneHidden">Number hidden</string>
     <string name="ForkMessagesHeader">Messages</string>
     <string name="ForkSaveDeleted">Keep deleted messages</string>
     <string name="ForkSaveDeletedInfo">Messages that others delete stay on this device and are marked as deleted. Earlier versions of edited messages are available in the message menu. Only messages already loaded on this device are kept.</string>

@@ -36,6 +36,7 @@ import org.telegram.messenger.FileLoadOperation;
 import org.telegram.messenger.FileLoader;
 import org.telegram.messenger.FileLog;
 import org.telegram.messenger.ForkSettings;
+import org.telegram.tgnet.tl.TL_account;
 import org.telegram.messenger.plugins.PluginsController;
 import org.telegram.messenger.FileUploadOperation;
 import org.telegram.messenger.KeepAliveJob;
@@ -227,7 +228,7 @@ public class ConnectionsManager extends BaseController {
         try {
             systemLangCode = LocaleController.getSystemLocaleStringIso639().toLowerCase();
             langCode = LocaleController.getLocaleStringIso639().toLowerCase();
-            deviceModel = Build.MANUFACTURER + Build.MODEL;
+            deviceModel = ForkSettings.hideDeviceModel() ? "Android" : Build.MANUFACTURER + Build.MODEL;
             PackageInfo pInfo = ApplicationLoader.applicationContext.getPackageManager().getPackageInfo(ApplicationLoader.applicationContext.getPackageName(), 0);
             appVersion = pInfo.versionName + " (" + pInfo.versionCode + ")";
             if (BuildVars.DEBUG_PRIVATE_VERSION) {
@@ -405,6 +406,11 @@ public class ConnectionsManager extends BaseController {
             return;
         }
         sendRequestNow(object, onComplete, onCompleteTimestamp, onQuickAck, onWriteToSocket, flags, datacenterId, connectionType, immediate, requestToken);
+        if (ForkSettings.needOfflineAfter(object)) {
+            TL_account.updateStatus offline = new TL_account.updateStatus();
+            offline.offline = true;
+            sendRequestNow(offline, null, null, null, null, 0, DEFAULT_DATACENTER_ID, ConnectionTypeGeneric, false, lastRequestToken.getAndIncrement());
+        }
     }
 
     private void sendRequestNow(TLObject object, RequestDelegate onComplete, RequestDelegateTimestamp onCompleteTimestamp, QuickAckDelegate onQuickAck, WriteToSocketDelegate onWriteToSocket, int flags, int datacenterId, int connectionType, boolean immediate, int requestToken) {

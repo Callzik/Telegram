@@ -3,6 +3,8 @@ package org.telegram.messenger;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import org.telegram.PhoneFormat.PhoneFormat;
+import org.telegram.tgnet.ConnectionsManager;
 import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
@@ -15,6 +17,10 @@ public final class ForkSettings {
     public static boolean ghostNoRead;
     public static boolean ghostNoTyping;
     public static boolean ghostOffline;
+    public static boolean ghostQuickToggle;
+    public static boolean hidePhone;
+    public static boolean hideDeviceModel;
+    public static boolean noLinkPreviewTyping;
     public static boolean saveDeleted;
     public static boolean saveEdits;
     public static boolean markDeleted;
@@ -51,6 +57,10 @@ public final class ForkSettings {
         ghostNoRead = p.getBoolean("ghostNoRead", true);
         ghostNoTyping = p.getBoolean("ghostNoTyping", true);
         ghostOffline = p.getBoolean("ghostOffline", true);
+        ghostQuickToggle = p.getBoolean("ghostQuickToggle", true);
+        hidePhone = p.getBoolean("hidePhone", false);
+        hideDeviceModel = p.getBoolean("hideDeviceModel", false);
+        noLinkPreviewTyping = p.getBoolean("noLinkPreviewTyping", false);
         saveDeleted = p.getBoolean("saveDeleted", true);
         saveEdits = p.getBoolean("saveEdits", true);
         markDeleted = p.getBoolean("markDeleted", true);
@@ -75,6 +85,10 @@ public final class ForkSettings {
             .putBoolean("ghostNoRead", ghostNoRead)
             .putBoolean("ghostNoTyping", ghostNoTyping)
             .putBoolean("ghostOffline", ghostOffline)
+            .putBoolean("ghostQuickToggle", ghostQuickToggle)
+            .putBoolean("hidePhone", hidePhone)
+            .putBoolean("hideDeviceModel", hideDeviceModel)
+            .putBoolean("noLinkPreviewTyping", noLinkPreviewTyping)
             .putBoolean("saveDeleted", saveDeleted)
             .putBoolean("saveEdits", saveEdits)
             .putBoolean("markDeleted", markDeleted)
@@ -91,6 +105,46 @@ public final class ForkSettings {
             .putBoolean("hideShareButton", hideShareButton)
             .putBoolean("hidePremiumPromo", hidePremiumPromo)
             .apply();
+    }
+
+    public static boolean ghostQuickToggle() {
+        load();
+        return ghostQuickToggle;
+    }
+
+    public static boolean hideDeviceModel() {
+        load();
+        return hideDeviceModel;
+    }
+
+    public static boolean noLinkPreviewTyping() {
+        load();
+        return noLinkPreviewTyping;
+    }
+
+    // Flips ghost mode; when it turns on, every account goes offline right away
+    public static void toggleGhost() {
+        load();
+        ghostMode = !ghostMode;
+        save();
+        if (ghostMode && ghostOffline) {
+            for (int a = 0; a < UserConfig.MAX_ACCOUNT_COUNT; a++) {
+                if (UserConfig.getInstance(a).isClientActivated()) {
+                    TL_account.updateStatus req = new TL_account.updateStatus();
+                    req.offline = true;
+                    ConnectionsManager.getInstance(a).sendRequest(req, null);
+                }
+            }
+        }
+    }
+
+    // Own phone number as shown in Settings and the own profile
+    public static String ownPhone(String phone) {
+        load();
+        if (hidePhone) {
+            return LocaleController.getString(R.string.ForkPhoneHidden);
+        }
+        return PhoneFormat.getInstance().format("+" + phone);
     }
 
     public static boolean isSaveDeleted() {
@@ -188,11 +242,13 @@ public final class ForkSettings {
             ((TL_account.updateStatus) object).offline = true;
             return false;
         }
-        if (ghostNoTyping && object instanceof TLRPC.TL_messages_setTyping) {
+        if (ghostNoTyping && (object instanceof TLRPC.TL_messages_setTyping || object instanceof TLRPC.TL_messages_setEncryptedTyping)) {
             return true;
         }
         if (ghostNoRead && (
             object instanceof TLRPC.TL_messages_readHistory ||
+            object instanceof TLRPC.TL_messages_readEncryptedHistory ||
+            object instanceof TLRPC.TL_messages_readSavedHistory ||
             object instanceof TLRPC.TL_channels_readHistory ||
             object instanceof TLRPC.TL_messages_readDiscussion ||
             object instanceof TLRPC.TL_messages_readMessageContents ||
@@ -203,5 +259,21 @@ public final class ForkSettings {
             return true;
         }
         return false;
+    }
+
+    // Sending a message can bring the account online on the server, so in ghost mode an offline
+    // status goes right after it.
+    public static boolean needOfflineAfter(TLObject object) {
+        load();
+        return ghostMode && ghostOffline && (
+            object instanceof TLRPC.TL_messages_sendMessage ||
+            object instanceof TLRPC.TL_messages_sendMedia ||
+            object instanceof TLRPC.TL_messages_sendMultiMedia ||
+            object instanceof TLRPC.TL_messages_forwardMessages ||
+            object instanceof TLRPC.TL_messages_sendInlineBotResult ||
+            object instanceof TLRPC.TL_messages_sendEncrypted ||
+            object instanceof TLRPC.TL_messages_sendEncryptedFile ||
+            object instanceof TLRPC.TL_messages_sendReaction
+        );
     }
 }

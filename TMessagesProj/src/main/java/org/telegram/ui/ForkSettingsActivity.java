@@ -38,6 +38,10 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int HIDE_HELP = 12;
     private static final int HIDE_SHARE = 13;
     private static final int HIDE_PREMIUM_PROMO = 18;
+    private static final int GHOST_QUICK = 22;
+    private static final int HIDE_PHONE = 23;
+    private static final int HIDE_DEVICE = 24;
+    private static final int NO_LINK_PREVIEW = 25;
     private static final int CHECK_UPDATES = 40;
     private static final int BATTERY_OPT = 41;
 
@@ -61,7 +65,14 @@ public class ForkSettingsActivity extends UniversalFragment {
             items.add(UItem.asCheck(GHOST_NO_TYPING, getString(R.string.ForkGhostNoTyping)).setChecked(ForkSettings.ghostNoTyping));
             items.add(UItem.asCheck(GHOST_OFFLINE, getString(R.string.ForkGhostOffline)).setChecked(ForkSettings.ghostOffline));
         }
+        items.add(UItem.asCheck(GHOST_QUICK, getString(R.string.ForkGhostQuick)).setChecked(ForkSettings.ghostQuickToggle));
         items.add(UItem.asShadow(getString(R.string.ForkGhostInfo)));
+
+        items.add(UItem.asHeader(getString(R.string.ForkPrivacyHeader)));
+        items.add(UItem.asCheck(HIDE_PHONE, getString(R.string.ForkHidePhone)).setChecked(ForkSettings.hidePhone));
+        items.add(UItem.asCheck(HIDE_DEVICE, getString(R.string.ForkHideDevice)).setChecked(ForkSettings.hideDeviceModel));
+        items.add(UItem.asCheck(NO_LINK_PREVIEW, getString(R.string.ForkNoLinkPreview)).setChecked(ForkSettings.noLinkPreviewTyping));
+        items.add(UItem.asShadow(getString(R.string.ForkPrivacyInfo)));
 
         items.add(UItem.asHeader(getString(R.string.ForkMessagesHeader)));
         items.add(UItem.asCheck(SAVE_DELETED, getString(R.string.ForkSaveDeleted)).setChecked(ForkSettings.saveDeleted));
@@ -118,10 +129,14 @@ public class ForkSettingsActivity extends UniversalFragment {
             return;
         }
         switch (item.id) {
-            case GHOST_MODE: ForkSettings.ghostMode = !ForkSettings.ghostMode; break;
+            case GHOST_MODE: ForkSettings.toggleGhost(); break;
             case GHOST_NO_READ: ForkSettings.ghostNoRead = !ForkSettings.ghostNoRead; break;
             case GHOST_NO_TYPING: ForkSettings.ghostNoTyping = !ForkSettings.ghostNoTyping; break;
             case GHOST_OFFLINE: ForkSettings.ghostOffline = !ForkSettings.ghostOffline; break;
+            case GHOST_QUICK: ForkSettings.ghostQuickToggle = !ForkSettings.ghostQuickToggle; break;
+            case HIDE_PHONE: ForkSettings.hidePhone = !ForkSettings.hidePhone; break;
+            case HIDE_DEVICE: ForkSettings.hideDeviceModel = !ForkSettings.hideDeviceModel; break;
+            case NO_LINK_PREVIEW: ForkSettings.noLinkPreviewTyping = !ForkSettings.noLinkPreviewTyping; break;
             case SAVE_DELETED: ForkSettings.saveDeleted = !ForkSettings.saveDeleted; break;
             case SAVE_EDITS: ForkSettings.saveEdits = !ForkSettings.saveEdits; break;
             case MARK_DELETED: ForkSettings.markDeleted = !ForkSettings.markDeleted; break;
