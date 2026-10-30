@@ -247,6 +247,28 @@ def _install_wheels(plugin_id, root, wheels_dir):
     return paths
 
 
+def _import_root_package(plugin_id, root):
+    """A plugin folder with __init__.py is the package <id> (import zwylib). Import it from
+    this exact folder up front, so a same-named folder elsewhere on sys.path, or a stale
+    namespace package, can't take its place."""
+    init = os.path.join(root, "__init__.py")
+    if not plugin_id.isidentifier() or not os.path.isfile(init):
+        return
+    current = sys.modules.get(plugin_id)
+    if current is not None and getattr(current, "__file__", None) == init:
+        return
+    for name in [n for n in sys.modules if n == plugin_id or n.startswith(plugin_id + ".")]:
+        del sys.modules[name]
+    spec = importlib.util.spec_from_file_location(plugin_id, init, submodule_search_locations=[root])
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[plugin_id] = module
+    try:
+        spec.loader.exec_module(module)
+    except BaseException:
+        sys.modules.pop(plugin_id, None)
+        raise
+
+
 def _forget_elyx(plugin_id):
     import elyx
     env = elyx._envs.pop(plugin_id, None)
@@ -257,10 +279,17 @@ def _forget_elyx(plugin_id):
     root = env.get("path") if env is not None else None
     if root:
         # the same files imported by id through sys.path (import zwylib)
-        for name in [n for n in sys.modules if n == plugin_id or n.startswith(plugin_id + ".")]:
-            f = getattr(sys.modules[name], "__file__", None) or ""
-            if f.startswith(root + os.sep):
-                del sys.modules[name]
+        def ours(m):
+            # namespace subpackages (folders without __init__.py) have no __file__, only __path__
+            try:
+                places = [getattr(m, "__file__", None) or ""] + [str(p) for p in (getattr(m, "__path__", None) or [])]
+            except Exception:
+                return True
+            return any(p == root or p.startswith(root + os.sep) for p in places)
+        # decide first, delete after: a namespace __path__ needs its parent still loaded
+        doomed = [n for n, m in list(sys.modules.items()) if (n == plugin_id or n.startswith(plugin_id + ".")) and ours(m)]
+        for name in doomed:
+            sys.modules.pop(name, None)
     if env is not None:
         for p in env.get("_wheel_paths", ()):
             if p in sys.path:
@@ -318,6 +347,7 @@ def load_elyx_plugin(plugin_id, root, main, meta_json, refmap_json, strings_json
         if meta.get("requirements"):
             _PC.log(plugin_id, "pip requirements are not supported, skipped: %s" % meta["requirements"])
 
+        _import_root_package(plugin_id, root)
         elyx._loading.append(plugin_id)
         try:
             module = importlib.import_module(module_name)
