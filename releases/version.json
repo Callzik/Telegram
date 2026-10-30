@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 16,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b16-arm64.apk",
-  "changelog": "Исправлена загрузка плагинов (ошибка «Cannot convert ... to java.lang.Object»)."
+  "build": 17,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b17-arm64.apk",
+  "changelog": "Плагины: пункты меню (MenuItemData, add_menu_item) в сообщениях, чате и профиле, AppEvent, logger, export/import настроек."
 }
