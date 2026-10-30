@@ -440,6 +440,12 @@ public class PluginsController {
         if (!enabled) {
             info.error = null;
         }
+        try {
+            // exteraGram plugins (ZwyLib) watch toggles by hooking this method
+            com.exteragram.messenger.plugins.PluginsController.getInstance().setPluginEnabled(id, enabled);
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
         saveEnabled();
         notifyChanged();
         if (!masterEnabled) {
@@ -582,10 +588,16 @@ public class PluginsController {
             return;
         }
         try {
+            com.exteragram.messenger.plugins.PluginsController.getPythonEngine().unloadPlugin(info.id);
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
+        try {
             host.callAttr("unload_plugin", info.id);
         } catch (Throwable e) {
             FileLog.e(e);
         }
+        com.exteragram.messenger.plugins.PluginsController.getInstance().removeAllXposedHooks(info.id);
     }
 
     // Builds the plugin's settings (create_settings) and returns them as JSON on the UI thread.
@@ -636,8 +648,50 @@ public class PluginsController {
     }
 
     private void notifyChanged() {
+        syncCompat();
         for (Runnable r : new ArrayList<>(listeners)) {
             r.run();
+        }
+    }
+
+    public void notifyChangedAsync() {
+        AndroidUtilities.runOnUIThread(this::notifyChanged);
+    }
+
+    // a plugin changed its settings items; open settings screens rebuild them
+    public void reloadSettings(String id) {
+        notifyChangedAsync();
+    }
+
+    // unload and load again (exteraGram API, used by library plugins)
+    public void reload(String id) {
+        PluginInfo info = getPlugin(id);
+        if (info == null) {
+            return;
+        }
+        getQueue().postRunnable(() -> {
+            if (info.loaded) {
+                unloadOnQueue(info);
+            }
+            if (info.enabled && masterEnabled) {
+                loadOnQueue(info);
+            }
+            notifyChangedAsync();
+        });
+    }
+
+    // keeps exteraGram's view of the plugin list (com.exteragram...PluginsController) in sync
+    private void syncCompat() {
+        com.exteragram.messenger.plugins.PluginsController compat = com.exteragram.messenger.plugins.PluginsController.getInstance();
+        HashSet<String> ids = new HashSet<>();
+        for (PluginInfo info : getPlugins()) {
+            compat.sync(info);
+            ids.add(info.id);
+        }
+        for (String id : new ArrayList<>(compat.plugins.keySet())) {
+            if (!ids.contains(id)) {
+                compat.remove(id);
+            }
         }
     }
 

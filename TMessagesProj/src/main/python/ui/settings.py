@@ -15,7 +15,7 @@ class _Item:
 class Header(_Item):
     type = "header"
 
-    def __init__(self, text):
+    def __init__(self, text, **kwargs):
         self.text = text
 
     def _to_json(self, plugin):
@@ -25,7 +25,7 @@ class Header(_Item):
 class Divider(_Item):
     type = "divider"
 
-    def __init__(self, text=None):
+    def __init__(self, text=None, **kwargs):
         self.text = text
 
     def _to_json(self, plugin):
@@ -35,7 +35,7 @@ class Divider(_Item):
 class Switch(_Item):
     type = "switch"
 
-    def __init__(self, key, text, default=False, subtext=None, icon=None, on_change=None):
+    def __init__(self, key, text, default=False, subtext=None, icon=None, on_change=None, **kwargs):
         self.key, self.text, self.default = key, text, default
         self.subtext, self.icon, self.on_change = subtext, icon, on_change
 
@@ -53,7 +53,7 @@ class Switch(_Item):
 class Input(_Item):
     type = "input"
 
-    def __init__(self, key, text, default="", subtext=None, icon=None, on_change=None, hint=None, multiline=False):
+    def __init__(self, key, text, default="", subtext=None, icon=None, on_change=None, hint=None, multiline=False, **kwargs):
         self.key, self.text, self.default = key, text, default
         self.subtext, self.icon, self.on_change = subtext, icon, on_change
         self.hint, self.multiline = hint, multiline
@@ -77,7 +77,7 @@ EditText = Input
 class Selector(_Item):
     type = "selector"
 
-    def __init__(self, key, text, default=0, items=(), icon=None, on_change=None):
+    def __init__(self, key, text, default=0, items=(), icon=None, on_change=None, **kwargs):
         self.key, self.text, self.default = key, text, default
         self.items, self.icon, self.on_change = list(items), icon, on_change
 
@@ -96,13 +96,31 @@ class Selector(_Item):
 class Text(_Item):
     type = "text"
 
-    def __init__(self, text, icon=None, accent=False, red=False, on_click=None, subtext=None):
+    def __init__(self, text, icon=None, accent=False, red=False, on_click=None, subtext=None, **kwargs):
         self.text, self.icon, self.accent, self.red = text, icon, accent, red
         self.on_click, self.subtext = on_click, subtext
+        # create_sub_fragment (a nested settings page) is not supported yet
+        self.create_sub_fragment = kwargs.get("create_sub_fragment")
 
     def _to_json(self, plugin):
         return {"type": self.type, "text": str(self.text), "icon": self.icon, "subtext": self.subtext,
                 "accent": bool(self.accent), "red": bool(self.red)}
+
+    def _event(self, plugin, value):
+        if self.on_click:
+            try:
+                self.on_click(None)
+            except TypeError:
+                self.on_click()
+
+
+class Custom(_Item):
+    """exteraGram's custom row (a UItem or a factory). MyTelegram's settings screen
+    doesn't show custom rows, so it is skipped."""
+    type = "custom"
+
+    def __init__(self, item=None, factory=None, factory_args=None, on_click=None, **kwargs):
+        self.item, self.factory, self.factory_args, self.on_click = item, factory, factory_args, on_click
 
     def _event(self, plugin, value):
         if self.on_click:

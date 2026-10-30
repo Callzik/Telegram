@@ -17,6 +17,7 @@ from java import jclass
 from base_plugin import BasePlugin, HookStrategy
 
 _PC = jclass("org.telegram.messenger.plugins.PluginsController")
+_Compat = jclass("com.exteragram.messenger.plugins.PluginsController")
 
 DEFAULT = int(HookStrategy.DEFAULT)
 CANCEL = int(HookStrategy.CANCEL)
@@ -70,11 +71,13 @@ def _drop_alias(plugin_id):
         del sys.modules[plugin_id]
 
 
-def _finish_load(plugin_id, plugin, module):
+def _finish_load(plugin_id, plugin, module, alias=True):
     plugins[plugin_id] = plugin
+    _Compat.getPythonEngine().pluginInstances.put(plugin_id, plugin)
     plugin.on_plugin_load()
     plugin._loaded = True
-    _register_alias(plugin_id, module)
+    if alias:
+        _register_alias(plugin_id, module)
     rebuild_hooks()
     return [None, _overrides(plugin, "create_settings")]
 
@@ -105,6 +108,7 @@ def load_plugin(plugin_id, path):
     except BaseException:
         error = traceback.format_exc()
         plugins.pop(plugin_id, None)
+        _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
         if plugin is not None:
             plugin._cleanup()
         sys.modules.pop(_module_name(plugin_id), None)
@@ -115,6 +119,7 @@ def load_plugin(plugin_id, path):
 def unload_plugin(plugin_id):
     plugin = plugins.pop(plugin_id, None)
     _settings.pop(plugin_id, None)
+    _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
     if plugin is None:
         _forget_elyx(plugin_id)
         return
@@ -146,6 +151,12 @@ def _ensure_namespace(elyx_dir):
         sys.modules[ELYX_NS] = ns
     if elyx_dir not in ns.__path__:
         ns.__path__.append(elyx_dir)
+    # as in exteraGram, a plugin folder with __init__.py is importable by its id (import zwylib)
+    if elyx_dir not in sys.path:
+        sys.path.append(elyx_dir)
+    plugins_dir = os.path.dirname(elyx_dir)
+    if plugins_dir not in sys.path:
+        sys.path.append(plugins_dir)
 
 
 def _module_dir(module_name):
@@ -243,6 +254,13 @@ def _forget_elyx(plugin_id):
     prefix = ELYX_NS + "." + plugin_id
     for name in [n for n in sys.modules if n == prefix or n.startswith(prefix + ".")]:
         del sys.modules[name]
+    root = env.get("path") if env is not None else None
+    if root:
+        # the same files imported by id through sys.path (import zwylib)
+        for name in [n for n in sys.modules if n == plugin_id or n.startswith(plugin_id + ".")]:
+            f = getattr(sys.modules[name], "__file__", None) or ""
+            if f.startswith(root + os.sep):
+                del sys.modules[name]
     if env is not None:
         for p in env.get("_wheel_paths", ()):
             if p in sys.path:
@@ -315,10 +333,12 @@ def load_elyx_plugin(plugin_id, root, main, meta_json, refmap_json, strings_json
         plugin.author = text("author")
         plugin.version = text("version")
         plugin.path = root
-        return _finish_load(plugin_id, plugin, module)
+        has_package = os.path.isfile(os.path.join(root, "__init__.py"))
+        return _finish_load(plugin_id, plugin, module, alias=not has_package)
     except BaseException:
         error = traceback.format_exc()
         plugins.pop(plugin_id, None)
+        _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
         if plugin is not None:
             plugin._cleanup()
         _forget_elyx(plugin_id)

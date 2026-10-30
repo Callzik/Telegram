@@ -57,8 +57,9 @@ public class PluginSettingsActivity extends UniversalFragment {
         }
         if (!info.loaded) {
             settings = null;
-            settingsRequested = false;
         }
+        // settings may have changed (a plugin asked to reload them): fetch them again
+        settingsRequested = false;
         update();
     }
 

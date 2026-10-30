@@ -53,7 +53,11 @@ class HookResult:
         self.params = params
 
 
-class MethodHook:
+class XposedHook:
+    """Base of method hook callbacks (exteraGram API)."""
+
+
+class MethodHook(XposedHook):
     """Hook for hook_method(). param is a Pine CallFrame with thisObject, args,
     method, getResult(), setResult(), getThrowable(), setThrowable().
     Calling param.setResult() in before_hooked_method skips the original method.
@@ -76,6 +80,35 @@ class MethodReplacement(MethodHook):
 
     def before_hooked_method(self, param):
         param.setResult(self.replace_hooked_method(param))
+
+
+class BaseHook(MethodHook):
+    """Hook built from plain functions: BaseHook(None, before=fn, after=fn)."""
+
+    def __init__(self, plugin=None, before=None, after=None, before_filters=None, after_filters=None):
+        self.plugin = plugin
+        if before is not None:
+            def before_hooked_method(param):
+                return before(param)
+            before_hooked_method.hook_filters = list(before_filters or [])
+            self.before_hooked_method = before_hooked_method
+        else:
+            self.before_hooked_method = None
+        if after is not None:
+            def after_hooked_method(param):
+                return after(param)
+            after_hooked_method.hook_filters = list(after_filters or [])
+            self.after_hooked_method = after_hooked_method
+        else:
+            self.after_hooked_method = None
+
+
+def hook_filters(*filters):
+    """Decorator kept for compatibility: filters are not evaluated, the hook always runs."""
+    def deco(fn):
+        fn.hook_filters = list(filters)
+        return fn
+    return deco
 
 
 def _overrides(obj, base, name):
