@@ -25,13 +25,47 @@ All plugin code, hooks and settings callbacks run on one background thread
 anything that touches views. A hook that takes longer than 5 seconds is skipped.
 """
 
+import logging
 import traceback
-from enum import IntEnum
+from dataclasses import dataclass
+from enum import Enum, IntEnum
+from typing import Any, Callable, Optional
 
 from java import jclass
 
 _PC = jclass("org.telegram.messenger.plugins.PluginsController")
 _Bridge = jclass("org.telegram.messenger.plugins.PluginBridge")
+_Menus = jclass("org.telegram.messenger.plugins.PluginMenus")
+
+
+class MenuItemType(Enum):
+    MESSAGE_CONTEXT_MENU = "MESSAGE_CONTEXT_MENU"
+    DRAWER_MENU = "DRAWER_MENU"
+    MAIN_MENU = "MAIN_MENU"
+    CHAT_ACTION_MENU = "CHAT_ACTION_MENU"
+    PROFILE_ACTION_MENU = "PROFILE_ACTION_MENU"
+
+
+@dataclass
+class MenuItemData:
+    """A menu item for BasePlugin.add_menu_item. on_click gets a context dict (account,
+    fragment, context, dialog_id, message, user, chat, ... depending on the menu).
+    condition (MVEL) is ignored."""
+    menu_type: Any
+    text: str
+    on_click: Callable[[dict], None]
+    item_id: Optional[str] = None
+    icon: Optional[str] = None
+    subtext: Optional[str] = None
+    condition: Optional[str] = None
+    priority: int = 0
+
+
+class AppEvent(Enum):
+    START = "START"
+    STOP = "STOP"
+    PAUSE = "PAUSE"
+    RESUME = "RESUME"
 
 
 class HookStrategy(IntEnum):
@@ -128,6 +162,17 @@ class BasePlugin:
         self._send_hook = None    # priority or None
         self._method_hooks = []
         self._loaded = False
+        self._logger = None
+
+    @property
+    def logger(self):
+        if getattr(self, "_logger", None) is None:
+            self._logger = logging.getLogger("plugin." + str(self.id))
+        return self._logger
+
+    @logger.setter
+    def logger(self, value):
+        self._logger = value
 
     # ---- lifecycle -------------------------------------------------------------
 
@@ -136,6 +181,35 @@ class BasePlugin:
 
     def on_plugin_unload(self):
         pass
+
+    def on_app_event(self, event_type):
+        pass
+
+    # ---- menu items ------------------------------------------------------------
+
+    def add_menu_item(self, data):
+        menu = data.menu_type.value if isinstance(data.menu_type, Enum) else str(data.menu_type)
+        on_click = data.on_click
+        plugin = self
+
+        def _click(jctx):
+            ctx = {}
+            try:
+                for k in jctx.keySet().toArray():
+                    ctx[str(k)] = jctx.get(k)
+            except Exception:
+                pass
+            try:
+                on_click(ctx)
+            except Exception:
+                plugin._report("menu item " + str(data.text))
+
+        return str(_Menus.add(self.id, data.item_id, menu, str(data.text),
+                              None if data.subtext is None else str(data.subtext),
+                              data.icon, int(data.priority or 0), _click))
+
+    def remove_menu_item(self, item_id):
+        return bool(_Menus.remove(self.id, str(item_id)))
 
     # ---- hooks -----------------------------------------------------------------
 
@@ -228,6 +302,13 @@ class BasePlugin:
     def get_all_settings(self):
         return {str(k): v for k, v in dict(_PC.getAllSettings(self.id)).items()}
 
+    def export_settings(self):
+        return self.get_all_settings()
+
+    def import_settings(self, settings, reload_settings=True):
+        for key, value in dict(settings or {}).items():
+            self.set_setting(str(key), value)
+
     # ---- misc ------------------------------------------------------------------
 
     def log(self, message):
@@ -248,6 +329,10 @@ class BasePlugin:
             except Exception:
                 pass
         self._method_hooks.clear()
+        try:
+            _Menus.removeAll(self.id)
+        except Exception:
+            pass
         self._hooks.clear()
         self._send_hook = None
         self._loaded = False
