@@ -3742,6 +3742,15 @@ public class ChatActivity extends BaseFragment implements
         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
             @Override
             public void onItemClick(final int id) {
+                if (org.telegram.messenger.plugins.PluginMenus.isOption(id)) {
+                    java.util.HashMap<String, Object> ctx = org.telegram.messenger.plugins.PluginMenus.context(ChatActivity.this);
+                    ctx.put("dialog_id", getDialogId());
+                    ctx.put("user", currentUser);
+                    ctx.put("chat", currentChat);
+                    ctx.put("encrypted_chat", currentEncryptedChat);
+                    org.telegram.messenger.plugins.PluginMenus.click(id, ctx);
+                    return;
+                }
                 if (id == -1) {
                     if (isInPollAddOptionMode()) {
                         pollAddOptionModeClose();
@@ -4475,6 +4484,7 @@ public class ChatActivity extends BaseFragment implements
             }
             translateItem = headerItem.lazilyAddSubItem(translate, R.drawable.msg_translate, LocaleController.getString(R.string.TranslateMessage));
             updateTranslateItemVisibility();
+            org.telegram.messenger.plugins.PluginMenus.addSubItems(headerItem, org.telegram.messenger.plugins.PluginMenus.CHAT_ACTION_MENU);
             if (currentChat != null && !currentChat.creator && !ChatObject.hasAdminRights(currentChat)) {
                 headerItem.lazilyAddSubItem(report, R.drawable.msg_report, LocaleController.getString(R.string.ReportChat));
             }
@@ -33479,6 +33489,9 @@ public class ChatActivity extends BaseFragment implements
             return;
         }
         boolean preserveDim = false;
+        if (org.telegram.messenger.plugins.PluginMenus.isOption(option)) {
+            org.telegram.messenger.plugins.PluginMenus.click(option, org.telegram.messenger.plugins.PluginMenus.messageContext(this, getDialogId(), selectedObject, selectedObjectGroup));
+        }
         switch (option) {
             case OPTION_FORK_EDIT_HISTORY: {
                 showForkEditHistory(selectedObject);
@@ -46092,6 +46105,9 @@ public class ChatActivity extends BaseFragment implements
                     options.add(OPTION_FORK_EDIT_HISTORY);
                     icons.add(R.drawable.msg_edit);
                 }
+                if (selectedObject != null) {
+                    org.telegram.messenger.plugins.PluginMenus.addMessageItems(items, options, icons);
+                }
                 if (message.canEditMessage(currentChat) && message.type != MessageObject.TYPE_POLL || chatMode == MODE_WELCOME_MESSAGES) {
                     items.add(LocaleController.getString(R.string.Edit));
                     options.add(OPTION_EDIT);
@@ -46443,6 +46459,9 @@ public class ChatActivity extends BaseFragment implements
                     items.add(LocaleController.getString(R.string.ForkEditHistory));
                     options.add(OPTION_FORK_EDIT_HISTORY);
                     icons.add(R.drawable.msg_edit);
+                }
+                if (selectedObject != null) {
+                    org.telegram.messenger.plugins.PluginMenus.addMessageItems(items, options, icons);
                 }
                 if (allowEdit || chatMode == MODE_WELCOME_MESSAGES) {
                     items.add(LocaleController.getString(R.string.Edit));

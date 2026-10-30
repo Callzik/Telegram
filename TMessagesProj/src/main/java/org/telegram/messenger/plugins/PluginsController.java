@@ -598,6 +598,7 @@ public class PluginsController {
             FileLog.e(e);
         }
         com.exteragram.messenger.plugins.PluginsController.getInstance().removeAllXposedHooks(info.id);
+        PluginMenus.removeAll(info.id);
     }
 
     // Builds the plugin's settings (create_settings) and returns them as JSON on the UI thread.
