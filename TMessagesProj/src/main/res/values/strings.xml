@@ -11589,12 +11589,12 @@
     <string name="Plugins">Plugins</string>
     <string name="PluginsInfo">Python plugins</string>
     <string name="PluginsEnable">Enable plugins</string>
-    <string name="PluginsEnableInfo">Plugins are .plugin files written in Python. They run in the background and do not slow down the interface. When switched off, Python is not loaded at all.</string>
+    <string name="PluginsEnableInfo">Plugins are .plugin and .elyx files written in Python. They run in the background and do not slow down the interface. When switched off, Python is not loaded at all.</string>
     <string name="PluginsSafeMode">Plugins were switched off because the app failed to start several times in a row. Turn them back on and disable the plugin that crashes.</string>
     <string name="PluginsInstalled">Installed plugins</string>
     <string name="PluginsEmpty">No plugins yet.</string>
     <string name="PluginsInstallFromFile">Install from file</string>
-    <string name="PluginsInstallInfo">You can also open a .plugin file in any chat to install it. Long-press a plugin for more actions.</string>
+    <string name="PluginsInstallInfo">You can also open a .plugin or .elyx file in any chat to install it. Long-press a plugin for more actions.</string>
     <string name="PluginsLoadError">Failed to load</string>
     <string name="PluginInstallTitle">Install plugin?</string>
     <string name="PluginUpdateTitle">Update plugin?</string>

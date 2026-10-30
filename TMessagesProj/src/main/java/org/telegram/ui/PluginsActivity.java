@@ -18,6 +18,7 @@ import org.telegram.messenger.FileLog;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.R;
 import org.telegram.messenger.Utilities;
+import org.telegram.messenger.plugins.ElyxPlugin;
 import org.telegram.messenger.plugins.PluginInfo;
 import org.telegram.messenger.plugins.PluginsController;
 import org.telegram.ui.ActionBar.AlertDialog;
@@ -147,7 +148,7 @@ public class PluginsActivity extends UniversalFragment {
     public void onActivityResultFragment(int requestCode, int resultCode, Intent data) {
         if (requestCode == REQUEST_PICK_PLUGIN && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             Uri uri = data.getData();
-            showInstallDialog(this, () -> PluginsController.readUri(uri));
+            showInstallDialogFor(this, () -> PluginsController.copyUriToTemp(uri));
         }
     }
 
@@ -155,25 +156,34 @@ public class PluginsActivity extends UniversalFragment {
     // shared helpers
 
     public static void showInstallDialog(BaseFragment fragment, File file) {
-        showInstallDialog(fragment, () -> PluginsController.readFile(file));
+        showInstallDialogFor(fragment, () -> file);
     }
 
-    // Reads and parses the plugin in the background, then asks the user to confirm.
-    public static void showInstallDialog(BaseFragment fragment, Callable<String> reader) {
+    // Reads and parses the plugin (a .plugin source file or an .elyx archive) in the
+    // background, then asks the user to confirm.
+    public static void showInstallDialogFor(BaseFragment fragment, Callable<File> reader) {
         if (fragment == null || fragment.getParentActivity() == null) {
             return;
         }
         Utilities.globalQueue.postRunnable(() -> {
             String source = null;
+            File archive = null;
             PluginInfo parsed = null;
             String error = null;
             try {
-                source = reader.call();
-                parsed = PluginInfo.parse(source);
+                File file = reader.call();
+                if (ElyxPlugin.isZip(file)) {
+                    archive = file;
+                    parsed = ElyxPlugin.parseArchive(file);
+                } else {
+                    source = PluginsController.readFile(file);
+                    parsed = PluginInfo.parse(source);
+                }
             } catch (Exception e) {
                 error = e.getMessage();
             }
             final String finalSource = source;
+            final File finalArchive = archive;
             final PluginInfo info = parsed;
             final String finalError = error;
             AndroidUtilities.runOnUIThread(() -> {
@@ -199,13 +209,18 @@ public class PluginsActivity extends UniversalFragment {
                 builder.setTitle(getString(existing != null ? R.string.PluginUpdateTitle : R.string.PluginInstallTitle));
                 builder.setMessage(message);
                 builder.setPositiveButton(getString(existing != null ? R.string.PluginUpdate : R.string.PluginInstall), (d, w) -> {
-                    PluginsController.getInstance().install(finalSource, installError -> {
+                    Utilities.Callback<String> done = installError -> {
                         if (installError == null) {
                             BulletinFactory.global().createSimpleBulletin(R.raw.contact_check, formatString(R.string.PluginInstalled, info.name)).show();
                         } else {
                             BulletinFactory.global().createSimpleBulletin(R.raw.error, formatString(R.string.PluginInstallFailed, firstLine(installError))).show();
                         }
-                    });
+                    };
+                    if (finalArchive != null) {
+                        PluginsController.getInstance().installElyx(finalArchive, done);
+                    } else {
+                        PluginsController.getInstance().install(finalSource, done);
+                    }
                 });
                 builder.setNegativeButton(getString(R.string.Cancel), null);
                 fragment.showDialog(builder.create());
@@ -247,9 +262,13 @@ public class PluginsActivity extends UniversalFragment {
         try {
             File dir = new File(ApplicationLoader.applicationContext.getFilesDir(), "cache");
             dir.mkdirs();
-            File out = new File(dir, info.id + PluginsController.PLUGIN_EXT);
-            try (FileOutputStream os = new FileOutputStream(out)) {
-                os.write(PluginsController.readFile(info.file).getBytes(StandardCharsets.UTF_8));
+            File out = new File(dir, info.id + (info.elyx ? ElyxPlugin.EXT : PluginsController.PLUGIN_EXT));
+            if (info.elyx) {
+                ElyxPlugin.copy(PluginsController.getInstance().getArchive(info), out);
+            } else {
+                try (FileOutputStream os = new FileOutputStream(out)) {
+                    os.write(PluginsController.readFile(info.file).getBytes(StandardCharsets.UTF_8));
+                }
             }
             Uri uri = FileProvider.getUriForFile(activity, ApplicationLoader.getApplicationId() + ".provider", out);
             Intent intent = new Intent(Intent.ACTION_SEND);

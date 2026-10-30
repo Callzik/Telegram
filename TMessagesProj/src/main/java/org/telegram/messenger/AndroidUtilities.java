@@ -4287,7 +4287,7 @@ public class AndroidUtilities {
 
     public static boolean openForView(File f, String fileName, String mimeType, final Activity activity, Theme.ResourcesProvider resourcesProvider, boolean restrict) {
         if (f != null && f.exists()) {
-            if (fileName != null && fileName.toLowerCase(Locale.ROOT).endsWith(org.telegram.messenger.plugins.PluginsController.PLUGIN_EXT)) {
+            if (fileName != null && (fileName.toLowerCase(Locale.ROOT).endsWith(org.telegram.messenger.plugins.PluginsController.PLUGIN_EXT) || org.telegram.messenger.plugins.ElyxPlugin.isElyxName(fileName))) {
                 org.telegram.ui.PluginsActivity.showInstallDialog(LaunchActivity.getSafeLastFragment(), f);
                 return true;
             }
