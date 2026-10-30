@@ -12,7 +12,7 @@ public final class ForkConfig {
     public static final boolean NO_FIREBASE_SMS = true;
 
     // Fork build number, bump on every published APK. Compared with "build" in UPDATE_URL.
-    public static final int FORK_BUILD = 17;
+    public static final int FORK_BUILD = 18;
     // Manifest of the latest APK on the "apk" branch of the fork repo
     public static final String UPDATE_URL = "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/version.json";
 
