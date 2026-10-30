@@ -60,5 +60,7 @@
 #-dontobfuscate
 # Plugins: Python code reaches app classes by name through Chaquopy, so keep the names
 -keep class org.telegram.messenger.plugins.** { *; }
+-keep class com.exteragram.messenger.** { *; }
+-keep class de.robv.android.xposed.** { *; }
 -keepnames class org.telegram.** { *; }
 -keepnames class androidx.** { *; }

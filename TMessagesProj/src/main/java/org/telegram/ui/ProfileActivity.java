@@ -2545,6 +2545,16 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 if (getParentActivity() == null) {
                     return;
                 }
+                if (org.telegram.messenger.plugins.PluginMenus.isOption(id)) {
+                    java.util.HashMap<String, Object> ctx = org.telegram.messenger.plugins.PluginMenus.context(ProfileActivity.this);
+                    ctx.put("userId", userId);
+                    ctx.put("chatId", chatId);
+                    ctx.put("dialog_id", dialogId != 0 ? dialogId : (userId != 0 ? userId : -chatId));
+                    ctx.put("user", userId != 0 ? getMessagesController().getUser(userId) : null);
+                    ctx.put("chat", chatId != 0 ? getMessagesController().getChat(chatId) : null);
+                    org.telegram.messenger.plugins.PluginMenus.click(id, ctx);
+                    return;
+                }
                 if (id == -1) {
                     if (sharedMediaLayout != null && sharedMediaLayout.scrollSlidingTextTabStrip != null && sharedMediaLayout.scrollSlidingTextTabStrip.isReordering()) {
                         stopTabsReorder();
@@ -12345,6 +12355,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         if (selfUser && !myProfile) {
             otherItem.addSubItem(logout, R.drawable.msg_leave, LocaleController.getString(R.string.LogOut));
         }
+        org.telegram.messenger.plugins.PluginMenus.addSubItems(otherItem, org.telegram.messenger.plugins.PluginMenus.PROFILE_ACTION_MENU, false);
         if (!isPulledDown) {
             otherItem.hideSubItem(gallery_menu_save);
             otherItem.hideSubItem(set_as_main);

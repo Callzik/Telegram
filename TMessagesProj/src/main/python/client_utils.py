@@ -124,3 +124,19 @@ def send_message(params, account=None):
 
 def send_text(peer, text, account=None):
     send_message({"peer": peer, "message": text}, account)
+
+
+_NCDelegate = jclass("org.telegram.messenger.NotificationCenter$NotificationCenterDelegate")
+
+
+class NotificationCenterDelegate(dynamic_proxy(_NCDelegate)):
+    """NotificationCenter observer. Override didReceivedNotification(id, account, args)
+    or assign a function to it. It is called on the UI thread."""
+
+    def __init__(self, fn=None):
+        super().__init__()
+        if fn is not None:
+            self.didReceivedNotification = fn
+
+    def didReceivedNotification(self, id, account, args):
+        pass

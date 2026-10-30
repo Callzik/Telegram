@@ -304,12 +304,12 @@
     <string name="Plugins">Плагины</string>
     <string name="PluginsInfo">Плагины на Python</string>
     <string name="PluginsEnable">Включить плагины</string>
-    <string name="PluginsEnableInfo">Плагины — это файлы .plugin на Python. Они работают в фоне и не тормозят интерфейс. Если выключить, Python вообще не загружается.</string>
+    <string name="PluginsEnableInfo">Плагины — это файлы .plugin и .elyx на Python. Они работают в фоне и не тормозят интерфейс. Если выключить, Python вообще не загружается.</string>
     <string name="PluginsSafeMode">Плагины отключены: приложение несколько раз подряд не смогло запуститься. Включите их снова и отключите плагин, из-за которого падает.</string>
     <string name="PluginsInstalled">Установленные плагины</string>
     <string name="PluginsEmpty">Плагинов пока нет.</string>
     <string name="PluginsInstallFromFile">Установить из файла</string>
-    <string name="PluginsInstallInfo">Плагин можно установить, открыв файл .plugin в любом чате. Удерживайте плагин, чтобы открыть действия.</string>
+    <string name="PluginsInstallInfo">Плагин можно установить, открыв файл .plugin или .elyx в любом чате. Удерживайте плагин, чтобы открыть действия.</string>
     <string name="PluginsLoadError">Не загрузился</string>
     <string name="PluginInstallTitle">Установить плагин?</string>
     <string name="PluginUpdateTitle">Обновить плагин?</string>

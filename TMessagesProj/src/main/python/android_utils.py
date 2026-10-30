@@ -54,10 +54,11 @@ def get_activity():
     return _Bridge.getActivity()
 
 
-OnClickListener = jclass("android.view.View$OnClickListener")
+_JOnClickListener = jclass("android.view.View$OnClickListener")
 
 
-class OnClick(dynamic_proxy(OnClickListener)):
+class OnClickListener(dynamic_proxy(_JOnClickListener)):
+    """View.OnClickListener calling fn(view), as in exteraGram."""
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
@@ -67,3 +68,19 @@ class OnClick(dynamic_proxy(OnClickListener)):
             self.fn(view)
         except Exception:
             _PC.log("python", traceback.format_exc())
+
+
+OnClick = OnClickListener
+
+
+class OnLongClickListener(dynamic_proxy(jclass("android.view.View$OnLongClickListener"))):
+    def __init__(self, fn):
+        super().__init__()
+        self.fn = fn
+
+    def onLongClick(self, view):
+        try:
+            return bool(self.fn(view))
+        except Exception:
+            _PC.log("python", traceback.format_exc())
+            return False

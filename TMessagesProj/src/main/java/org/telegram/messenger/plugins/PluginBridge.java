@@ -54,6 +54,23 @@ public final class PluginBridge {
         });
     }
 
+    // icon is a raw (lottie) resource or 0; onButton is a Python callable run on the plugin queue
+    public static void showBulletinRaw(String text, int icon, String buttonText, PyObject onButton) {
+        AndroidUtilities.runOnUIThread(() -> {
+            BaseFragment fragment = getLastFragment();
+            BulletinFactory factory = fragment != null ? BulletinFactory.of(fragment) : BulletinFactory.global();
+            if (factory == null) {
+                return;
+            }
+            int res = icon != 0 ? icon : R.raw.info;
+            if (buttonText != null) {
+                factory.createSimpleBulletin(res, text, buttonText, () -> callLater(onButton)).show();
+            } else {
+                factory.createSimpleBulletin(res, text).show();
+            }
+        });
+    }
+
     // onOk/onCancel are Python callables (or None), called on the plugin queue
     public static void showAlert(String title, String message, String okText, String cancelText, PyObject onOk, PyObject onCancel) {
         AndroidUtilities.runOnUIThread(() -> {
@@ -144,7 +161,7 @@ public final class PluginBridge {
     // ---------------------------------------------------------------------------------
     // method hooks (Pine)
 
-    private static synchronized void ensurePine() {
+    public static synchronized void ensurePine() {
         if (pineReady) {
             return;
         }

@@ -253,6 +253,11 @@ android {
 chaquopy {
     defaultConfig {
         version = "3.13"
+        // pure-Python packages that exteraGram ships and plugins (ZwyLib) import
+        pip {
+            install "typing_extensions"
+            install "packaging"
+        }
     }
 }
 

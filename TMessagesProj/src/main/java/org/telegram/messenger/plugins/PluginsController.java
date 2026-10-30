@@ -189,6 +189,51 @@ public class PluginsController {
                 FileLog.e(e);
             }
         }
+        File[] elyx = new File(dir, ElyxPlugin.DIR).listFiles();
+        if (elyx == null) {
+            return;
+        }
+        for (File folder : elyx) {
+            if (!folder.isDirectory() || folder.getName().endsWith(".tmp")) {
+                continue;
+            }
+            try {
+                PluginInfo info = ElyxPlugin.parseDir(folder);
+                info.file = folder;
+                info.enabled = enabled.contains(info.id);
+                synchronized (plugins) {
+                    plugins.put(info.id, info);
+                }
+            } catch (Exception e) {
+                FileLog.e(e);
+            }
+        }
+    }
+
+    public File getArchive(PluginInfo info) {
+        return new File(new File(dir, ElyxPlugin.ARCHIVES), info.id + ElyxPlugin.EXT);
+    }
+
+    // Copies a picked file into the cache, so the install dialog can look at it.
+    public static File copyUriToTemp(Uri uri) throws Exception {
+        File tmp = new File(ApplicationLoader.applicationContext.getCacheDir(), "plugin_import.tmp");
+        try (InputStream in = ApplicationLoader.applicationContext.getContentResolver().openInputStream(uri);
+             FileOutputStream out = new FileOutputStream(tmp)) {
+            if (in == null) {
+                throw new IllegalArgumentException("can't open file");
+            }
+            byte[] buf = new byte[16384];
+            long total = 0;
+            int n;
+            while ((n = in.read(buf)) > 0) {
+                total += n;
+                if (total > ElyxPlugin.MAX_SIZE) {
+                    throw new IllegalArgumentException("plugin file is too large");
+                }
+                out.write(buf, 0, n);
+            }
+        }
+        return tmp;
     }
 
     public ArrayList<PluginInfo> getPlugins() {
@@ -265,19 +310,14 @@ public class PluginsController {
                 try (FileOutputStream out = new FileOutputStream(tmp)) {
                     out.write(source.getBytes(StandardCharsets.UTF_8));
                 }
+                if (old != null && old.elyx) {
+                    removeFiles(old);
+                }
                 if (!tmp.renameTo(file)) {
                     throw new IllegalStateException("can't write " + file);
                 }
-                info.file = file;
-                info.enabled = true;
-                synchronized (plugins) {
-                    plugins.put(info.id, info);
-                }
-                saveEnabled();
-                if (masterEnabled) {
-                    loadOnQueue(info);
-                    error = info.error;
-                }
+                finishInstall(info, file);
+                error = info.error;
             } catch (Exception e) {
                 FileLog.e(e);
                 error = e.getMessage();
@@ -288,6 +328,85 @@ public class PluginsController {
                 if (done != null) done.run(result);
             });
         });
+    }
+
+    // Same for an .elyx archive: unpacks it to ElyxPlugins/<id>/ and keeps a copy of it.
+    public void installElyx(File archive, Utilities.Callback<String> done) {
+        getQueue().postRunnable(() -> {
+            String error = null;
+            try {
+                PluginInfo info = ElyxPlugin.parseArchive(archive);
+                PluginInfo old = getPlugin(info.id);
+                if (old != null && old.loaded) {
+                    unloadOnQueue(old);
+                }
+                File root = new File(dir, ElyxPlugin.DIR);
+                File archives = new File(dir, ElyxPlugin.ARCHIVES);
+                if (!root.exists() && !root.mkdirs() || !archives.exists() && !archives.mkdirs()) {
+                    throw new IllegalStateException("can't create " + root);
+                }
+                File target = new File(root, info.id);
+                File tmp = new File(root, info.id + ".tmp");
+                ElyxPlugin.deleteRecursive(tmp);
+                try {
+                    ElyxPlugin.extract(archive, tmp);
+                } catch (Exception e) {
+                    ElyxPlugin.deleteRecursive(tmp);
+                    throw e;
+                }
+                File keep = getArchive(info);
+                if (!keep.getCanonicalPath().equals(archive.getCanonicalPath())) {
+                    ElyxPlugin.copy(archive, keep);
+                }
+                if (old != null) {
+                    if (old.elyx) {
+                        ElyxPlugin.deleteRecursive(target);
+                    } else if (old.file != null) {
+                        old.file.delete();
+                    }
+                }
+                ElyxPlugin.deleteRecursive(target);
+                if (!tmp.renameTo(target)) {
+                    throw new IllegalStateException("can't write " + target);
+                }
+                finishInstall(info, target);
+                error = info.error;
+            } catch (Exception e) {
+                FileLog.e(e);
+                error = e.getMessage();
+            }
+            final String result = error;
+            AndroidUtilities.runOnUIThread(() -> {
+                notifyChanged();
+                if (done != null) done.run(result);
+            });
+        });
+    }
+
+    private void finishInstall(PluginInfo info, File file) {
+        info.file = file;
+        info.enabled = true;
+        synchronized (plugins) {
+            plugins.put(info.id, info);
+        }
+        saveEnabled();
+        if (masterEnabled) {
+            loadOnQueue(info);
+            if (info.loaded) {
+                retryDependents(info.id);
+            }
+        }
+    }
+
+    private void removeFiles(PluginInfo info) {
+        if (info.elyx) {
+            if (info.file != null) {
+                ElyxPlugin.deleteRecursive(info.file);
+            }
+            getArchive(info).delete();
+        } else if (info.file != null) {
+            info.file.delete();
+        }
     }
 
     public void delete(String id) {
@@ -303,9 +422,7 @@ public class PluginsController {
             if (info.loaded) {
                 unloadOnQueue(info);
             }
-            if (info.file != null) {
-                info.file.delete();
-            }
+            removeFiles(info);
             settingsPrefs(id).edit().clear().apply();
             synchronized (logs) {
                 logs.remove(id);
@@ -323,6 +440,12 @@ public class PluginsController {
         if (!enabled) {
             info.error = null;
         }
+        try {
+            // exteraGram plugins (ZwyLib) watch toggles by hooking this method
+            com.exteragram.messenger.plugins.PluginsController.getInstance().setPluginEnabled(id, enabled);
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
         saveEnabled();
         notifyChanged();
         if (!masterEnabled) {
@@ -331,6 +454,9 @@ public class PluginsController {
         getQueue().postRunnable(() -> {
             if (enabled) {
                 loadOnQueue(info);
+                if (info.loaded) {
+                    retryDependents(info.id);
+                }
             } else if (info.loaded) {
                 unloadOnQueue(info);
             }
@@ -386,12 +512,43 @@ public class PluginsController {
     }
 
     private void loadEnabledPlugins() {
+        ArrayList<PluginInfo> failed = new ArrayList<>();
         for (PluginInfo info : getPlugins()) {
             if (info.enabled && !info.loaded) {
                 loadOnQueue(info);
+                if (!info.loaded && isImportError(info.error)) {
+                    failed.add(info);
+                }
             }
         }
+        // a plugin may import a library plugin (import zwylib) that sorts after it
+        for (int pass = 0; pass < 3 && !failed.isEmpty(); pass++) {
+            ArrayList<PluginInfo> again = new ArrayList<>();
+            for (PluginInfo info : failed) {
+                loadOnQueue(info);
+                if (!info.loaded) {
+                    again.add(info);
+                }
+            }
+            if (again.size() == failed.size()) {
+                break;
+            }
+            failed = again;
+        }
         AndroidUtilities.runOnUIThread(this::notifyChanged);
+    }
+
+    private static boolean isImportError(String error) {
+        return error != null && (error.contains("ModuleNotFoundError") || error.contains("ImportError") || error.contains("Cannot run without"));
+    }
+
+    // Plugins that failed to import the plugin that was just loaded get another try.
+    private void retryDependents(String id) {
+        for (PluginInfo other : getPlugins()) {
+            if (other.enabled && !other.loaded && other.error != null && other.error.contains(id)) {
+                loadOnQueue(other);
+            }
+        }
     }
 
     private void loadOnQueue(PluginInfo info) {
@@ -400,7 +557,13 @@ public class PluginsController {
             return;
         }
         try {
-            List<PyObject> result = host.callAttr("load_plugin", info.id, info.file.getAbsolutePath()).asList();
+            List<PyObject> result;
+            if (info.elyx) {
+                result = host.callAttr("load_elyx_plugin", info.id, info.file.getAbsolutePath(), info.elyxMain,
+                    info.elyxMeta, info.elyxRefmap, info.elyxStrings, info.elyxAssets).asList();
+            } else {
+                result = host.callAttr("load_plugin", info.id, info.file.getAbsolutePath()).asList();
+            }
             PyObject error = result.get(0);
             if (error != null) {
                 info.error = error.toString();
@@ -425,10 +588,17 @@ public class PluginsController {
             return;
         }
         try {
+            com.exteragram.messenger.plugins.PluginsController.getPythonEngine().unloadPlugin(info.id);
+        } catch (Throwable e) {
+            FileLog.e(e);
+        }
+        try {
             host.callAttr("unload_plugin", info.id);
         } catch (Throwable e) {
             FileLog.e(e);
         }
+        com.exteragram.messenger.plugins.PluginsController.getInstance().removeAllXposedHooks(info.id);
+        PluginMenus.removeAll(info.id);
     }
 
     // Builds the plugin's settings (create_settings) and returns them as JSON on the UI thread.
@@ -479,8 +649,50 @@ public class PluginsController {
     }
 
     private void notifyChanged() {
+        syncCompat();
         for (Runnable r : new ArrayList<>(listeners)) {
             r.run();
+        }
+    }
+
+    public void notifyChangedAsync() {
+        AndroidUtilities.runOnUIThread(this::notifyChanged);
+    }
+
+    // a plugin changed its settings items; open settings screens rebuild them
+    public void reloadSettings(String id) {
+        notifyChangedAsync();
+    }
+
+    // unload and load again (exteraGram API, used by library plugins)
+    public void reload(String id) {
+        PluginInfo info = getPlugin(id);
+        if (info == null) {
+            return;
+        }
+        getQueue().postRunnable(() -> {
+            if (info.loaded) {
+                unloadOnQueue(info);
+            }
+            if (info.enabled && masterEnabled) {
+                loadOnQueue(info);
+            }
+            notifyChangedAsync();
+        });
+    }
+
+    // keeps exteraGram's view of the plugin list (com.exteragram...PluginsController) in sync
+    private void syncCompat() {
+        com.exteragram.messenger.plugins.PluginsController compat = com.exteragram.messenger.plugins.PluginsController.getInstance();
+        HashSet<String> ids = new HashSet<>();
+        for (PluginInfo info : getPlugins()) {
+            compat.sync(info);
+            ids.add(info.id);
+        }
+        for (String id : new ArrayList<>(compat.plugins.keySet())) {
+            if (!ids.contains(id)) {
+                compat.remove(id);
+            }
         }
     }
 
@@ -566,6 +778,14 @@ public class PluginsController {
 
     public static void removeSetting(String id, String key) {
         settingsPrefs(id).edit().remove(key).apply();
+    }
+
+    public static String yamlToJson(String text) {
+        return MiniYaml.toJson(text);
+    }
+
+    public static String getPluginsDir() {
+        return getInstance().dir.getAbsolutePath();
     }
 
     public static void runOnPluginQueue(Runnable runnable, long delay) {

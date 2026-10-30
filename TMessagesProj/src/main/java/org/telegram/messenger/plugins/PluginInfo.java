@@ -25,6 +25,14 @@ public class PluginInfo {
     public String minVersion;
     public File file;
 
+    // structured Elyx plugin (.elyx archive); file is then its unpacked folder
+    public boolean elyx;
+    public String elyxMain;
+    public String elyxMeta;
+    public String elyxRefmap;
+    public String elyxStrings;
+    public String elyxAssets;
+
     // runtime state, owned by PluginsController
     public volatile boolean enabled;
     public volatile boolean loaded;
