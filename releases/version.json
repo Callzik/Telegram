@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 15,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b15-arm64.apk",
-  "changelog": "Исправлена ошибка KeyError: 'zwylib' при установке ZwyLib после неудачной загрузки."
+  "build": 16,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b16-arm64.apk",
+  "changelog": "Исправлена загрузка плагинов (ошибка «Cannot convert ... to java.lang.Object»)."
 }
