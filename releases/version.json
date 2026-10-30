@@ -1,6 +1,6 @@
 {
   "version": "13.0.3",
-  "build": 19,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b19-arm64.apk",
-  "changelog": "Кнопка режима призрака в шапке списка чатов. Автоархивация новых чатов с незнакомцами без Premium."
+  "build": 20,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.0.3-b20-arm64.apk",
+  "changelog": "Исправлены хуки методов в плагинах (Pine больше не обфусцируется)."
 }
