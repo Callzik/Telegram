@@ -73,7 +73,7 @@ def _drop_alias(plugin_id):
 
 def _finish_load(plugin_id, plugin, module, alias=True):
     plugins[plugin_id] = plugin
-    _Compat.getPythonEngine().pluginInstances.put(plugin_id, plugin)
+    _Compat.getPythonEngine().putInstance(plugin_id, plugin)
     plugin.on_plugin_load()
     plugin._loaded = True
     if alias:
@@ -108,7 +108,7 @@ def load_plugin(plugin_id, path):
     except BaseException:
         error = traceback.format_exc()
         plugins.pop(plugin_id, None)
-        _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
+        _Compat.getPythonEngine().removeInstance(plugin_id)
         if plugin is not None:
             plugin._cleanup()
         sys.modules.pop(_module_name(plugin_id), None)
@@ -119,7 +119,7 @@ def load_plugin(plugin_id, path):
 def unload_plugin(plugin_id):
     plugin = plugins.pop(plugin_id, None)
     _settings.pop(plugin_id, None)
-    _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
+    _Compat.getPythonEngine().removeInstance(plugin_id)
     if plugin is None:
         _forget_elyx(plugin_id)
         return
@@ -368,7 +368,7 @@ def load_elyx_plugin(plugin_id, root, main, meta_json, refmap_json, strings_json
     except BaseException:
         error = traceback.format_exc()
         plugins.pop(plugin_id, None)
-        _Compat.getPythonEngine().pluginInstances.remove(plugin_id)
+        _Compat.getPythonEngine().removeInstance(plugin_id)
         if plugin is not None:
             plugin._cleanup()
         _forget_elyx(plugin_id)

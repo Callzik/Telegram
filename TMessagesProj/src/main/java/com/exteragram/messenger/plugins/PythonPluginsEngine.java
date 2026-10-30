@@ -1,5 +1,7 @@
 package com.exteragram.messenger.plugins;
 
+import com.chaquo.python.PyObject;
+
 import org.telegram.messenger.Utilities;
 import org.telegram.messenger.plugins.ElyxPlugin;
 import org.telegram.messenger.plugins.PluginInfo;
@@ -15,7 +17,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PythonPluginsEngine {
 
     // plugin id -> Python plugin instance, kept by mytg_host
-    public final ConcurrentHashMap<String, Object> pluginInstances = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<String, PyObject> pluginInstances = new ConcurrentHashMap<>();
+
+    // Python objects reach Java only through PyObject parameters
+    public void putInstance(String id, PyObject instance) {
+        pluginInstances.put(id, instance);
+    }
+
+    public void removeInstance(String id) {
+        pluginInstances.remove(id);
+    }
 
     public boolean isPlugin(File file, Object unused) {
         if (file == null) return false;
