@@ -21,6 +21,7 @@ public final class ForkSettings {
     public static boolean hidePhone;
     public static boolean hideDeviceModel;
     public static boolean noLinkPreviewTyping;
+    public static boolean autoArchive;
     public static boolean saveDeleted;
     public static boolean saveEdits;
     public static boolean markDeleted;
@@ -61,6 +62,7 @@ public final class ForkSettings {
         hidePhone = p.getBoolean("hidePhone", false);
         hideDeviceModel = p.getBoolean("hideDeviceModel", false);
         noLinkPreviewTyping = p.getBoolean("noLinkPreviewTyping", false);
+        autoArchive = p.getBoolean("autoArchive", false);
         saveDeleted = p.getBoolean("saveDeleted", true);
         saveEdits = p.getBoolean("saveEdits", true);
         markDeleted = p.getBoolean("markDeleted", true);
@@ -89,6 +91,7 @@ public final class ForkSettings {
             .putBoolean("hidePhone", hidePhone)
             .putBoolean("hideDeviceModel", hideDeviceModel)
             .putBoolean("noLinkPreviewTyping", noLinkPreviewTyping)
+            .putBoolean("autoArchive", autoArchive)
             .putBoolean("saveDeleted", saveDeleted)
             .putBoolean("saveEdits", saveEdits)
             .putBoolean("markDeleted", markDeleted)
@@ -136,6 +139,34 @@ public final class ForkSettings {
                 }
             }
         }
+    }
+
+    // The server lets only Premium (or spam-flagged) accounts archive new non-contact chats.
+    // With local Premium the fork does it on the device instead.
+    public static boolean localAutoArchive(int account) {
+        load();
+        return localPremium && !UserConfig.getInstance(account).isPremium() && !MessagesController.getInstance(account).autoarchiveAvailable;
+    }
+
+    public static boolean autoArchiveNewChat(int account, long dialogId, MessageObject lastMessage) {
+        if (!localAutoArchive(account) || !autoArchive || lastMessage.isOut()) {
+            return false;
+        }
+        MessagesController controller = MessagesController.getInstance(account);
+        TLRPC.User from;
+        if (DialogObject.isUserDialog(dialogId)) {
+            from = controller.getUser(dialogId);
+            if (from == null || from.bot || from.support || dialogId == 777000) {
+                return false;
+            }
+        } else if (DialogObject.isChatDialog(dialogId)) {
+            // a group or channel someone added us to
+            long fromId = lastMessage.getFromChatId();
+            from = fromId > 0 ? controller.getUser(fromId) : null;
+        } else {
+            return false;
+        }
+        return from != null && !from.contact && !from.self;
     }
 
     // Own phone number as shown in Settings and the own profile

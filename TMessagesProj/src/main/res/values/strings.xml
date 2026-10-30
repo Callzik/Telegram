@@ -11557,7 +11557,9 @@
     <string name="ForkGhostNoTyping">Don\'t send typing status</string>
     <string name="ForkGhostOffline">Always appear offline</string>
     <string name="ForkGhostInfo">Others won\'t see that you read their messages, are typing or are online. Sending a message still marks the chat as read on the server.</string>
-    <string name="ForkGhostQuick">Toggle in Settings</string>
+    <string name="ForkGhostEnabled">Ghost mode on</string>
+    <string name="ForkGhostDisabled">Ghost mode off</string>
+    <string name="ForkGhostQuick">Quick toggle</string>
     <string name="ForkGhostOn">On</string>
     <string name="ForkGhostOff">Off</string>
     <string name="ForkPrivacyHeader">Privacy</string>

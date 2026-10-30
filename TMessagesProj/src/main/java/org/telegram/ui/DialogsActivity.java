@@ -501,6 +501,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private ValueAnimator contactsAlphaAnimator;
     private ViewPage[] viewPages;
     private ActionBarMenuItem passcodeItem;
+    private ActionBarMenuItem ghostItem;
     private ActionBarMenuItem downloadsItem;
     private DownloadProgressIcon downloadProgressIcon;
     private boolean downloadsItemVisible;
@@ -3440,6 +3441,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         fragmentSearchFieldWatcher.setDoNotCloseAfterFieldEmpty();
 
         if (initialDialogsType == DIALOGS_TYPE_DEFAULT) {
+            ForkSettings.load();
+            ghostItem = menu.addItem(5, ForkSettings.ghostMode ? R.drawable.fork_ghost_on : R.drawable.fork_ghost_off);
+            ghostItem.setContentDescription(getString(R.string.ForkGhostMode));
             optionsItem = menu.addItem(4, R.drawable.ic_ab_other);
             optionsItem.setContentDescription(LocaleController.getString(R.string.AccDescrMoreOptions));
             optionsItem.setOnClickListener(v -> {
@@ -3908,6 +3912,10 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                     ((LaunchActivity) getParentActivity()).showPasscodeActivity(false, true, position[0] + passcodeItem.getMeasuredWidth() / 2, position[1] + passcodeItem.getMeasuredHeight() / 2, () -> passcodeItem.setAlpha(1.0f), () -> passcodeItem.setAlpha(0.0f));
                     getNotificationsController().showNotifications();
                     checkUi_itemPasscodeVisibility();
+                } else if (id == 5) {
+                    ForkSettings.toggleGhost();
+                    checkUi_itemGhostVisibility();
+                    BulletinFactory.of(DialogsActivity.this).createSimpleBulletin(ContextCompat.getDrawable(getContext(), R.drawable.fork_ghost_on), getString(ForkSettings.ghostMode ? R.string.ForkGhostEnabled : R.string.ForkGhostDisabled)).show();
                 } else if (id == 3) {
                     showSearch(true, true, true);
                     fragmentSearchFieldWatcher.toggleSearch(true);
@@ -7021,6 +7029,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     @Override
     public void onResume() {
         super.onResume();
+        checkUi_itemGhostVisibility();
         if (dialogStoriesCell != null) {
             dialogStoriesCell.onResume();
         }
@@ -14121,7 +14130,18 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_itemDownloadsVisibility();
         checkUi_itemSpeedVisibility();
         checkUi_itemPasscodeVisibility();
+        checkUi_itemGhostVisibility();
         checkUi_itemSearchVisibility();
+    }
+
+    private void checkUi_itemGhostVisibility() {
+        if (ghostItem == null) return;
+        ghostItem.setIcon(ForkSettings.ghostMode ? R.drawable.fork_ghost_on : R.drawable.fork_ghost_off);
+        final float factor0 = ForkSettings.ghostQuickToggle() ? 1 : 0;
+        final float factor1 = 1f - animatorSearchVisible.getFloatValue();
+        final float factor2 = 1f - getRightSlidingProgress();
+        final float factor3 = 1f - animatorDoneButtonVisible.getFloatValue();
+        FragmentFloatingButton.setAnimatedVisibility(ghostItem, factor0 * factor1 * factor2 * factor3);
     }
 
     private void checkUi_itemBackButtonVisibility() {

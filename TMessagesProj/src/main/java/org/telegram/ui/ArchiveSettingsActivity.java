@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.BotWebViewVibrationEffect;
+import org.telegram.messenger.ForkSettings;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
@@ -96,6 +97,12 @@ public class ArchiveSettingsActivity extends BaseFragment implements Notificatio
                 ((TextCheckCell) view).setChecked(settings.keep_archived_folders);
                 changed = true;
             } else if (item.id == 7) {
+                if (ForkSettings.localAutoArchive(currentAccount)) {
+                    ForkSettings.autoArchive = !ForkSettings.autoArchive;
+                    ForkSettings.save();
+                    ((TextCheckCell) view).setChecked(ForkSettings.autoArchive);
+                    return;
+                }
                 if (!getUserConfig().isPremium() && !getMessagesController().autoarchiveAvailable && !settings.archive_and_mute_new_noncontact_peers) {
                     final Bulletin.SimpleLayout layout = new Bulletin.SimpleLayout(getContext(), getResourceProvider());
                     layout.textView.setText(AndroidUtilities.replaceSingleTag(LocaleController.getString(R.string.UnlockPremium), Theme.key_undo_cancelColor, 0, () -> {
@@ -223,8 +230,9 @@ public class ArchiveSettingsActivity extends BaseFragment implements Notificatio
                     checked = settings.keep_archived_folders;
                     cell.setCheckBoxIcon(0);
                 } else if (item.id == 7) {
-                    checked = settings.archive_and_mute_new_noncontact_peers;
-                    cell.setCheckBoxIcon(getUserConfig().isPremium() || getMessagesController().autoarchiveAvailable ? 0 : R.drawable.permission_locked);
+                    final boolean local = ForkSettings.localAutoArchive(currentAccount);
+                    checked = local ? ForkSettings.autoArchive : settings.archive_and_mute_new_noncontact_peers;
+                    cell.setCheckBoxIcon(local || getUserConfig().isPremium() || getMessagesController().autoarchiveAvailable ? 0 : R.drawable.permission_locked);
                 } else {
                     return;
                 }
@@ -290,7 +298,7 @@ public class ArchiveSettingsActivity extends BaseFragment implements Notificatio
                     } else if (item.id == 4) {
                         ((TextCheckCell) child).setChecked(settings.keep_archived_folders);
                     } else if (item.id == 7) {
-                        ((TextCheckCell) child).setChecked(settings.archive_and_mute_new_noncontact_peers);
+                        ((TextCheckCell) child).setChecked(ForkSettings.localAutoArchive(currentAccount) ? ForkSettings.autoArchive : settings.archive_and_mute_new_noncontact_peers);
                     }
                 }
             }

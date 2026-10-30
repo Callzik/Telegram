@@ -22093,6 +22093,12 @@ public class MessagesController extends BaseController implements NotificationCe
             dialogMessage.put(dialogId, arrayList);
             getTranslateController().checkDialogMessage(dialogId);
             changed = true;
+            if (ForkSettings.autoArchiveNewChat(currentAccount, dialogId, lastMessage)) {
+                AndroidUtilities.runOnUIThread(() -> {
+                    addDialogToFolder(dialogId, 1, -1, 0);
+                    getNotificationsController().setDialogNotificationsSettings(dialogId, 0, NotificationsController.SETTING_MUTE_FOREVER);
+                });
+            }
 
             if (filterDialogsChanged) {
                 sortDialogs(null);

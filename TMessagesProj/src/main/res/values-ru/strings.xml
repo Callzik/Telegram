@@ -272,7 +272,9 @@
     <string name="ForkGhostNoTyping">Не показывать «печатает»</string>
     <string name="ForkGhostOffline">Всегда быть офлайн</string>
     <string name="ForkGhostInfo">Собеседники не увидят, что вы прочитали сообщение, печатаете или в сети. Отправка сообщения всё равно отмечает чат прочитанным на сервере.</string>
-    <string name="ForkGhostQuick">Переключатель в настройках</string>
+    <string name="ForkGhostEnabled">Режим призрака включён</string>
+    <string name="ForkGhostDisabled">Режим призрака выключен</string>
+    <string name="ForkGhostQuick">Быстрый переключатель</string>
     <string name="ForkGhostOn">Вкл.</string>
     <string name="ForkGhostOff">Выкл.</string>
     <string name="ForkPrivacyHeader">Конфиденциальность</string>
