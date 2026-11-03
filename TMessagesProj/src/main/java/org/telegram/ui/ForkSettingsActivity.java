@@ -44,6 +44,8 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int NO_LINK_PREVIEW = 25;
     private static final int CHECK_UPDATES = 40;
     private static final int BATTERY_OPT = 41;
+    private static final int INPUT_CALC = 50;
+    private static final int PDF_VIEWER = 51;
 
     @Override
     public boolean onFragmentCreate() {
@@ -98,6 +100,11 @@ public class ForkSettingsActivity extends UniversalFragment {
         items.add(UItem.asCheck(AMOLED, getString(R.string.ForkAmoled)).setChecked(ForkSettings.amoledDark));
         items.add(UItem.asCheck(SYSTEM_FONT, getString(R.string.ForkSystemFont)).setChecked(ForkSettings.systemFont));
         items.add(UItem.asShadow(getString(R.string.ForkAppearanceInfo)));
+
+        items.add(UItem.asHeader(getString(R.string.ForkToolsHeader)));
+        items.add(UItem.asCheck(INPUT_CALC, getString(R.string.ForkInputCalc)).setChecked(ForkSettings.inputCalc));
+        items.add(UItem.asCheck(PDF_VIEWER, getString(R.string.ForkPdfViewer)).setChecked(ForkSettings.pdfViewer));
+        items.add(UItem.asShadow(getString(R.string.ForkToolsInfo)));
 
         items.add(UItem.asHeader(getString(R.string.ForkHideHeader)));
         items.add(UItem.asCheck(HIDE_STORIES, getString(R.string.ForkHideStories)).setChecked(ForkSettings.hideStories));
@@ -159,6 +166,8 @@ public class ForkSettingsActivity extends UniversalFragment {
                 Theme.refreshThemeColors();
                 break;
             case SYSTEM_FONT: ForkSettings.systemFont = !ForkSettings.systemFont; break;
+            case INPUT_CALC: ForkSettings.inputCalc = !ForkSettings.inputCalc; break;
+            case PDF_VIEWER: ForkSettings.pdfViewer = !ForkSettings.pdfViewer; break;
             case HIDE_STORIES: ForkSettings.hideStories = !ForkSettings.hideStories; break;
             case HIDE_PREMIUM: ForkSettings.hidePremiumSettings = !ForkSettings.hidePremiumSettings; break;
             case HIDE_HELP: ForkSettings.hideHelpSettings = !ForkSettings.hideHelpSettings; break;

@@ -357,4 +357,12 @@
     <string name="ForkBatteryTitle">Надёжные уведомления</string>
     <string name="ForkBatteryText">Чтобы сообщения приходили без задержек, разрешите MyTelegram работать в фоне без оптимизации батареи.</string>
     <string name="ForkBatteryAllow">Разрешить</string>
+    <string name="ForkSearchFilter">Тип сообщений</string>
+    <string name="ForkSearchFilterAll">Все сообщения</string>
+    <string name="ForkToolsHeader">Инструменты</string>
+    <string name="ForkInputCalc">Результаты в поле ввода</string>
+    <string name="ForkPdfViewer">Встроенный просмотр PDF</string>
+    <string name="ForkToolsInfo">Наберите = в конце сообщения, чтобы получить результат: 2+2*3=, 200+15%=, 100 usd rub=, 5 км в mi=, 30 c в f=, 15:00 мск в utc=. Курсы валют берутся с open.er-api.com.</string>
+    <string name="ForkPdfOpenExternal">Открыть в другом приложении</string>
+    <string name="ForkPdfPage">%1$d / %2$d</string>
 </resources>

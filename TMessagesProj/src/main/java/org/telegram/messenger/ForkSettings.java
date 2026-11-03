@@ -32,6 +32,8 @@ public final class ForkSettings {
     public static boolean premiumDownload;
     public static boolean amoledDark;
     public static boolean systemFont;
+    public static boolean inputCalc;
+    public static boolean pdfViewer;
 
     // what to hide in the interface
     public static boolean hideStories;
@@ -71,6 +73,8 @@ public final class ForkSettings {
         premiumTranslate = p.getBoolean("premiumTranslate", true);
         premiumFolders = p.getBoolean("premiumFolders", true);
         premiumDownload = p.getBoolean("premiumDownload", true);
+        inputCalc = p.getBoolean("inputCalc", true);
+        pdfViewer = p.getBoolean("pdfViewer", true);
         amoledDark = p.getBoolean("amoledDark", false);
         systemFont = p.getBoolean("systemFont", false);
         hideStories = p.getBoolean("hideStories", true);
@@ -100,6 +104,8 @@ public final class ForkSettings {
             .putBoolean("premiumTranslate", premiumTranslate)
             .putBoolean("premiumFolders", premiumFolders)
             .putBoolean("premiumDownload", premiumDownload)
+            .putBoolean("inputCalc", inputCalc)
+            .putBoolean("pdfViewer", pdfViewer)
             .putBoolean("amoledDark", amoledDark)
             .putBoolean("systemFont", systemFont)
             .putBoolean("hideStories", hideStories)

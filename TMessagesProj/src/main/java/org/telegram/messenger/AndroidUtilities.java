@@ -4286,10 +4286,25 @@ public class AndroidUtilities {
     }
 
     public static boolean openForView(File f, String fileName, String mimeType, final Activity activity, Theme.ResourcesProvider resourcesProvider, boolean restrict) {
+        return openForView(f, fileName, mimeType, activity, resourcesProvider, restrict, false);
+    }
+
+    /** Fork: opens the file in another app, skipping the built-in viewers. */
+    public static boolean openForViewExternal(File f, String fileName, String mimeType, final Activity activity) {
+        return openForView(f, fileName, mimeType, activity, null, false, true);
+    }
+
+    private static boolean openForView(File f, String fileName, String mimeType, final Activity activity, Theme.ResourcesProvider resourcesProvider, boolean restrict, boolean external) {
         if (f != null && f.exists()) {
-            if (fileName != null && (fileName.toLowerCase(Locale.ROOT).endsWith(org.telegram.messenger.plugins.PluginsController.PLUGIN_EXT) || org.telegram.messenger.plugins.ElyxPlugin.isElyxName(fileName))) {
+            if (!external && fileName != null && (fileName.toLowerCase(Locale.ROOT).endsWith(org.telegram.messenger.plugins.PluginsController.PLUGIN_EXT) || org.telegram.messenger.plugins.ElyxPlugin.isElyxName(fileName))) {
                 org.telegram.ui.PluginsActivity.showInstallDialog(LaunchActivity.getSafeLastFragment(), f);
                 return true;
+            }
+            if (!external && ForkSettings.pdfViewer && org.telegram.ui.ForkPdfViewerActivity.isPdf(fileName, mimeType)) {
+                org.telegram.ui.ActionBar.BaseFragment last = LaunchActivity.getSafeLastFragment();
+                if (last != null && last.presentFragment(new org.telegram.ui.ForkPdfViewerActivity(f, fileName, mimeType))) {
+                    return true;
+                }
             }
             String realMimeType = null;
             Intent intent = new Intent(Intent.ACTION_VIEW);
