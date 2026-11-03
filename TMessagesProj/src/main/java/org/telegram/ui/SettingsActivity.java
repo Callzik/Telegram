@@ -548,6 +548,7 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         if (listView != null && listView.adapter != null) {
             setInfo(getUserConfig().getCurrentUser());
             listView.adapter.update(false);
+            listView.adapter.notifyDataSetChanged();
         }
     }
 
@@ -637,13 +638,6 @@ public class SettingsActivity extends BaseFragment implements NotificationCenter
         }
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (listView.adapter != null) {
-            listView.adapter.notifyDataSetChanged();
-        }
-    }
 
     private ArrayList<Integer> accountNumbers = new ArrayList<>();
     private void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
