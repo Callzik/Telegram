@@ -3796,6 +3796,25 @@ public class MediaDataController extends BaseController {
         return searchServerResultMessagesMap[mergeDialog ? 1 : 0].indexOfKey(messageId) >= 0;
     }
 
+    // Fork: media type filter for in-chat search (0 = all messages)
+    public static final int FORK_FILTER_NONE = 0, FORK_FILTER_PHOTO = 1, FORK_FILTER_VIDEO = 2, FORK_FILTER_FILE = 3,
+            FORK_FILTER_LINK = 4, FORK_FILTER_MUSIC = 5, FORK_FILTER_VOICE = 6, FORK_FILTER_GIF = 7, FORK_FILTER_POLL = 8;
+    public int forkSearchFilter = FORK_FILTER_NONE;
+
+    private TLRPC.MessagesFilter getForkSearchFilter() {
+        switch (forkSearchFilter) {
+            case FORK_FILTER_PHOTO: return new TLRPC.TL_inputMessagesFilterPhotos();
+            case FORK_FILTER_VIDEO: return new TLRPC.TL_inputMessagesFilterVideo();
+            case FORK_FILTER_FILE: return new TLRPC.TL_inputMessagesFilterDocument();
+            case FORK_FILTER_LINK: return new TLRPC.TL_inputMessagesFilterUrl();
+            case FORK_FILTER_MUSIC: return new TLRPC.TL_inputMessagesFilterMusic();
+            case FORK_FILTER_VOICE: return new TLRPC.TL_inputMessagesFilterRoundVoice();
+            case FORK_FILTER_GIF: return new TLRPC.TL_inputMessagesFilterGif();
+            case FORK_FILTER_POLL: return new TLRPC.TL_inputMessagesFilterPoll();
+            default: return new TLRPC.TL_inputMessagesFilterEmpty();
+        }
+    }
+
     public void searchMessagesInChat(String query, long dialogId, long mergeDialogId, int guid, int direction, long replyMessageId, TLRPC.User user, TLRPC.Chat chat, ReactionsLayoutInBubble.VisibleReaction reaction) {
         searchMessagesInChat(query, dialogId, mergeDialogId, guid, direction, replyMessageId, false, user, chat, true, reaction);
     }
@@ -3952,7 +3971,7 @@ public class MediaDataController extends BaseController {
                     req.saved_reaction.add(reaction.toTLReaction());
                     req.flags |= 8;
                 }
-                req.filter = new TLRPC.TL_inputMessagesFilterEmpty();
+                req.filter = getForkSearchFilter();
                 mergeReqId = getConnectionsManager().sendRequest(req, (response, error) -> AndroidUtilities.runOnUIThread(() -> {
                     if (lastMergeDialogId == mergeDialogId) {
                         mergeReqId = 0;
@@ -4037,7 +4056,7 @@ public class MediaDataController extends BaseController {
             req.saved_reaction.add(reaction.toTLReaction());
             req.flags |= 8;
         }
-        req.filter = new TLRPC.TL_inputMessagesFilterEmpty();
+        req.filter = getForkSearchFilter();
         lastSearchQuery = query;
         long queryWithDialogFinal = queryWithDialog;
         String finalQuery = query;

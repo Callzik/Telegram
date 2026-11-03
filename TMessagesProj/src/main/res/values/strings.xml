@@ -11677,6 +11677,14 @@
     <string name="ForkBatteryTitle">Reliable notifications</string>
     <string name="ForkBatteryText">So that messages arrive without delays, allow MyTelegram to work in the background without battery optimization.</string>
     <string name="ForkBatteryAllow">Allow</string>
+    <string name="ForkSearchFilter">Message type</string>
+    <string name="ForkSearchFilterAll">All messages</string>
+    <string name="ForkToolsHeader">Tools</string>
+    <string name="ForkInputCalc">Results in the input field</string>
+    <string name="ForkPdfViewer">Built-in PDF viewer</string>
+    <string name="ForkToolsInfo">Type = at the end of a message to get the result: 2+2*3=, 200+15%=, 100 usd rub=, 5 km in mi=, 30 c in f=, 15:00 msk in utc=. Currency rates come from open.er-api.com.</string>
+    <string name="ForkPdfOpenExternal">Open in another app</string>
+    <string name="ForkPdfPage">%1$d / %2$d</string>
     <string name="WalletSearchGifts">Search gifts</string>
     <string name="WalletGiftOnCard">On Card</string>
     <string name="WalletGiftAddToCard">Add to Card</string>

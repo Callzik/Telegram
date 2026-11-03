@@ -619,6 +619,7 @@ public class ChatActivity extends BaseFragment implements
     private FrameLayout searchContainer;
     private ImageView searchCalendarButton;
     private ImageView searchUserButton;
+    private ImageView searchFilterButton;
     private AnimatedTextView searchCountText;
     private AnimatedTextView searchExpandList;
     private AnimatedTextView searchOtherButton;
@@ -10598,6 +10599,18 @@ public class ChatActivity extends BaseFragment implements
                     if (searchUserButton != null && searchUserButton.getVisibility() != GONE) {
                         leftMargin += 48;
                     }
+                    if (searchFilterButton != null && searchFilterButton.getVisibility() != GONE) {
+                        leftMargin += 48;
+                    }
+                    ((MarginLayoutParams) child.getLayoutParams()).leftMargin = AndroidUtilities.dp(leftMargin);
+                } else if (child == searchFilterButton) {
+                    float leftMargin = 2.66f;
+                    if (searchCalendarButton != null && searchCalendarButton.getVisibility() != GONE) {
+                        leftMargin += 45.34f;
+                    }
+                    if (searchUserButton != null && searchUserButton.getVisibility() != GONE) {
+                        leftMargin += 48;
+                    }
                     ((MarginLayoutParams) child.getLayoutParams()).leftMargin = AndroidUtilities.dp(leftMargin);
                 }
                 super.measureChildWithMargins(child, parentWidthMeasureSpec, widthUsed, parentHeightMeasureSpec, heightUsed);
@@ -10676,7 +10689,24 @@ public class ChatActivity extends BaseFragment implements
         }
 
         if (chatMode != MODE_SEARCH) {
-            searchCalendarButton = new ImageView(getContext());
+            // Fork: media type filter, shown and hidden together with the calendar button
+            searchFilterButton = new ImageView(getContext());
+            searchFilterButton.setScaleType(ImageView.ScaleType.CENTER);
+            searchFilterButton.setImageResource(R.drawable.msg_media);
+            searchFilterButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_chat_searchPanelIcons), PorterDuff.Mode.MULTIPLY));
+            searchFilterButton.setBackgroundDrawable(Theme.createSelectorDrawable(getThemedColor(Theme.key_actionBarActionModeDefaultSelector), 1));
+            searchContainer.addView(searchFilterButton, LayoutHelper.createFrame(44, 44, Gravity.LEFT | Gravity.TOP, 2.66f, 0, 0, 0));
+            searchFilterButton.setOnClickListener(view -> showForkSearchFilterMenu());
+            searchFilterButton.setContentDescription(LocaleController.getString(R.string.ForkSearchFilter));
+            searchCalendarButton = new ImageView(getContext()) {
+                @Override
+                public void setVisibility(int visibility) {
+                    super.setVisibility(visibility);
+                    if (searchFilterButton != null) {
+                        searchFilterButton.setVisibility(visibility);
+                    }
+                }
+            };
             searchCalendarButton.setScaleType(ImageView.ScaleType.CENTER);
             searchCalendarButton.setImageResource(R.drawable.msg_calendar);
             searchCalendarButton.setColorFilter(new PorterDuffColorFilter(getThemedColor(Theme.key_chat_searchPanelIcons), PorterDuff.Mode.MULTIPLY));
@@ -10697,6 +10727,56 @@ public class ChatActivity extends BaseFragment implements
                 }, themeDelegate).create());
             });
             searchCalendarButton.setContentDescription(LocaleController.getString(R.string.JumpToDate));
+        }
+    }
+
+    private void showForkSearchFilterMenu() {
+        if (getParentActivity() == null) {
+            return;
+        }
+        if (searchItem != null) {
+            AndroidUtilities.hideKeyboard(searchItem.getSearchField());
+        }
+        final MediaDataController mdc = getMediaDataController();
+        final int[] types = {
+            MediaDataController.FORK_FILTER_NONE, MediaDataController.FORK_FILTER_PHOTO, MediaDataController.FORK_FILTER_VIDEO,
+            MediaDataController.FORK_FILTER_FILE, MediaDataController.FORK_FILTER_LINK, MediaDataController.FORK_FILTER_MUSIC,
+            MediaDataController.FORK_FILTER_VOICE, MediaDataController.FORK_FILTER_GIF, MediaDataController.FORK_FILTER_POLL
+        };
+        final CharSequence[] names = {
+            LocaleController.getString(R.string.ForkSearchFilterAll), LocaleController.getString(R.string.AttachPhoto),
+            LocaleController.getString(R.string.AttachVideo), LocaleController.getString(R.string.SharedFilesTab2),
+            LocaleController.getString(R.string.SharedLinksTab2), LocaleController.getString(R.string.SharedMusicTab2),
+            LocaleController.getString(R.string.SharedVoiceTab2), LocaleController.getString(R.string.SharedGIFsTab2),
+            LocaleController.getString(R.string.Poll)
+        };
+        int checked = 0;
+        for (int i = 0; i < types.length; i++) {
+            if (types[i] == mdc.forkSearchFilter) checked = i;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(getParentActivity(), themeDelegate);
+        builder.setTitle(LocaleController.getString(R.string.ForkSearchFilter));
+        final int checkedFinal = checked;
+        builder.setItems(names, (dialog, which) -> {
+            if (which == checkedFinal) {
+                return;
+            }
+            setForkSearchFilter(types[which]);
+            searchingQuery = searchItem != null ? searchItem.getSearchField().getText().toString() : (searchingQuery == null ? "" : searchingQuery);
+            searchWas = true;
+            getMediaDataController().searchMessagesInChat(searchingQuery, dialog_id, mergeDialogId, classGuid, 0, threadMessageId, false, searchingUserMessages, searchingChatMessages, true, searchingReaction);
+            updateSearchButtons(0, 0, -1);
+            updateSearchUpDownButtonVisibility(true);
+            updatePagedownButtonVisibility(true);
+        });
+        showDialog(builder.create());
+    }
+
+    private void setForkSearchFilter(int type) {
+        getMediaDataController().forkSearchFilter = type;
+        if (searchFilterButton != null) {
+            int color = getThemedColor(type == MediaDataController.FORK_FILTER_NONE ? Theme.key_chat_searchPanelIcons : Theme.key_windowBackgroundWhiteBlueIcon);
+            searchFilterButton.setColorFilter(new PorterDuffColorFilter(color, PorterDuff.Mode.MULTIPLY));
         }
     }
 
@@ -38918,6 +38998,7 @@ public class ChatActivity extends BaseFragment implements
         @Override
         public void onSearchCollapse() {
             searching = false;
+            setForkSearchFilter(MediaDataController.FORK_FILTER_NONE);
             updatePagedownButtonVisibility(true);
             updateSearchUpDownButtonVisibility(true);
             if (searchCalendarButton != null) {
