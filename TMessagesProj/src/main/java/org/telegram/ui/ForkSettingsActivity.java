@@ -8,6 +8,7 @@ import org.telegram.messenger.BuildVars;
 import org.telegram.messenger.ForkBattery;
 import org.telegram.messenger.ForkConfig;
 import org.telegram.messenger.ForkSettings;
+import org.telegram.messenger.ForkTunnel;
 import org.telegram.messenger.R;
 import org.telegram.messenger.browser.Browser;
 import org.telegram.ui.ActionBar.Theme;
@@ -46,6 +47,7 @@ public class ForkSettingsActivity extends UniversalFragment {
     private static final int BATTERY_OPT = 41;
     private static final int INPUT_CALC = 50;
     private static final int PDF_VIEWER = 51;
+    private static final int TUNNEL = 60;
 
     @Override
     public boolean onFragmentCreate() {
@@ -60,6 +62,12 @@ public class ForkSettingsActivity extends UniversalFragment {
 
     @Override
     protected void fillItems(ArrayList<UItem> items, UniversalAdapter adapter) {
+        ForkTunnel.load();
+        items.add(UItem.asHeader(getString(R.string.ForkTunnel)));
+        items.add(UItem.asButton(TUNNEL, R.drawable.msg_settings, getString(R.string.ForkTunnelEnable),
+                getString(ForkTunnel.enabled ? R.string.ForkTunnelRunning : R.string.ForkTunnelStopped)));
+        items.add(UItem.asShadow(null));
+
         items.add(UItem.asHeader(getString(R.string.ForkGhostHeader)));
         items.add(UItem.asCheck(GHOST_MODE, getString(R.string.ForkGhostMode)).setChecked(ForkSettings.ghostMode));
         if (ForkSettings.ghostMode) {
@@ -125,6 +133,10 @@ public class ForkSettingsActivity extends UniversalFragment {
 
     @Override
     protected void onClick(UItem item, View view, int position, float x, float y) {
+        if (item.id == TUNNEL) {
+            presentFragment(new ForkTunnelActivity());
+            return;
+        }
         if (item.id == BATTERY_OPT) {
             ForkBattery.requestExemption(getParentActivity());
             return;
