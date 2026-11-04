@@ -67,6 +67,8 @@ android {
     packagingOptions {
         jniLibs {
             useLegacyPackaging = true
+            // the tunnel core is an executable, ship it byte-for-byte
+            keepDebugSymbols += "**/libsingbox.so"
         }
     }
 
