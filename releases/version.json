@@ -1,6 +1,6 @@
 {
   "version": "13.1.1",
-  "build": 21,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.1.1-b21-arm64.apk",
-  "changelog": "Telegram 13.1.1 с фиксами официального клиента. Фильтр по типу медиа в поиске по чату. Калькулятор, валюты, единицы и часовые пояса в поле ввода (набрать = в конце). Встроенный просмотр PDF."
+  "build": 22,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.1.1-b22-arm64.apk",
+  "changelog": "Обход блокировок без VPN: встроенное ядро sing-box (VLESS Reality, Hysteria2, Trojan, Shadowsocks, VMess, TUIC), подписки и бесплатные списки, автовыбор самого быстрого сервера, массовый импорт MTProto-прокси. Настройки форка → Обход блокировок."
 }
