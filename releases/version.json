@@ -1,6 +1,6 @@
 {
   "version": "13.1.1",
-  "build": 22,
-  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.1.1-b22-arm64.apk",
-  "changelog": "Обход блокировок без VPN: встроенное ядро sing-box (VLESS Reality, Hysteria2, Trojan, Shadowsocks, VMess, TUIC), подписки и бесплатные списки, автовыбор самого быстрого сервера, массовый импорт MTProto-прокси. Настройки форка → Обход блокировок."
+  "build": 23,
+  "file_url": "https://raw.githubusercontent.com/Callzik/Telegram/apk/releases/mytelegram-13.1.1-b23-arm64.apk",
+  "changelog": "Исправлен вход (ошибка API_ID_PUBLISHED_FLOOD в сборке 22). Обход блокировок без VPN (sing-box) из сборки 22 сохранён."
 }
