@@ -153,6 +153,10 @@ android {
         // which Telegram limits (API_ID_PUBLISHED_FLOOD on login).
         def apiId = getProps("MYTG_API_ID") ?: System.getenv("MYTG_API_ID") ?: "4"
         def apiHash = getProps("MYTG_API_HASH") ?: System.getenv("MYTG_API_HASH") ?: "014b35b6184100b085b0d0572f9b5103"
+        // A shipped APK with the public key can't log in, so refuse to package one.
+        if (apiId == "4" && gradle.startParameter.taskNames.any { it.toLowerCase().contains("assemble") || it.toLowerCase().contains("bundle") }) {
+            throw new GradleException("MYTG_API_ID/MYTG_API_HASH are not set (local.properties or env): the APK would fail login with API_ID_PUBLISHED_FLOOD")
+        }
         buildConfigField "int", "APP_ID", apiId
         buildConfigField "String", "APP_HASH", "\"" + apiHash + "\""
 
